@@ -3,18 +3,18 @@ from accounts.models import User
 
 
 class Employee(models.Model):
-    """Xodimlar modeli (Сотрудники)"""
+    """Сотрудники model"""
     SALARY_TYPES = [
         ('fixed', 'Belgilangan'),
         ('hourly', 'Soatbay'),
-        ('piecework', 'Parchabay'),
+        ('piecework', 'Ish hajmi bo\'yicha'),
     ]
 
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='employees',
-        verbose_name='Foydalanuvchi'
+        verbose_name='Сотрудник'
     )
     full_name = models.CharField(
         max_length=200,
@@ -42,8 +42,8 @@ class Employee(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Xodim'
-        verbose_name_plural = 'Xodimlar'
+        verbose_name = 'Сотрудник'
+        verbose_name_plural = 'Сотрудники'
         ordering = ['-created_at']
 
     def __str__(self):
@@ -84,8 +84,8 @@ class Balance(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Balans'
-        verbose_name_plural = 'Balanslar'
+        verbose_name = 'Баланс'
+        verbose_name_plural = 'Балансы'
         ordering = ['-date', '-created_at']
 
     def __str__(self):
@@ -141,8 +141,8 @@ class BalanceStatistics(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Balans statistikasi'
-        verbose_name_plural = 'Balans statistikasi'
+        verbose_name = 'Статистика баланса'
+        verbose_name_plural = 'Статистика баланса'
         unique_together = ['employee', 'year', 'month']
         ordering = ['-year', '-month']
 

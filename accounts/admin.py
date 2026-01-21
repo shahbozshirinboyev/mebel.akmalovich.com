@@ -12,12 +12,14 @@ class UserAdmin(admin.ModelAdmin):
         'username',
         'first_name',
         'last_name',
-        'phone_number',
-        'is_active',    # faollik holati
+        # 'phone_number',
         'is_superuser', # super foydalanuvchi huquqi
+        'is_active',    # faollik holati
         'is_staff',     # admin panelga kirish huquqi
         'is_worker',
         'is_manager',
+        # 'date_joined',
+        # 'last_login',
     )
     search_fields = ('username', 'email', 'phone_number')
     list_filter = ('is_worker', 'is_manager', 'is_active')
