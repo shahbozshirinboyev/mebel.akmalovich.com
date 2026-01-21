@@ -1,6 +1,57 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 from .models import Employee, Balance, BalanceStatistics
 from .forms import EmployeeAdminForm
+from datetime import datetime
+
+
+class YearFilter(admin.SimpleListFilter):
+    """Custom year filter from 2020 to current year"""
+    title = _('Yil')
+    parameter_name = 'year'
+
+    def lookups(self, request, model_admin):
+        """Return list of years from 2020 to current year"""
+        current_year = datetime.now().year
+        years = []
+        for year in range(2020, current_year + 1):
+            years.append((str(year), str(year)))
+        return years
+
+    def queryset(self, request, queryset):
+        """Filter queryset by selected year"""
+        if self.value():
+            return queryset.filter(date__year=self.value())
+        return queryset
+
+
+class MonthFilter(admin.SimpleListFilter):
+    """Custom month filter for all 12 months"""
+    title = _('Oy')
+    parameter_name = 'month'
+
+    def lookups(self, request, model_admin):
+        """Return list of all 12 months"""
+        return [
+            ('1', 'Yanvar'),
+            ('2', 'Fevral'),
+            ('3', 'Mart'),
+            ('4', 'Aprel'),
+            ('5', 'May'),
+            ('6', 'Iyun'),
+            ('7', 'Iyul'),
+            ('8', 'Avgust'),
+            ('9', 'Sentabr'),
+            ('10', 'Oktabr'),
+            ('11', 'Noyabr'),
+            ('12', 'Dekabr'),
+        ]
+
+    def queryset(self, request, queryset):
+        """Filter queryset by selected month"""
+        if self.value():
+            return queryset.filter(date__month=self.value())
+        return queryset
 
 
 @admin.register(Employee)
@@ -45,25 +96,37 @@ class EmployeeAdmin(admin.ModelAdmin):
 class BalanceAdmin(admin.ModelAdmin):
     list_display = (
         'id',
+        'formatted_date',
         'employee',
-        'date',
         'earned_amount',
         'paid_amount',
-        'net_balance',
-        'created_at'
+        'description',
+        'created_at',
+        'actions_column'
     )
     list_filter = (
-        'date',
-        'employee',
-        'created_at'
+        YearFilter,
+        MonthFilter,
+        'employee'
     )
     search_fields = (
         'employee__full_name',
         'employee__position',
         'description'
     )
-    readonly_fields = ('created_at', 'net_balance')
+    readonly_fields = ('created_at', 'net_balance', 'actions_column')
     date_hierarchy = 'date'
+
+    def formatted_date(self, obj):
+        """Format date as year, month"""
+        return obj.date.strftime('%d.%m.%Y')
+    formatted_date.short_description = 'Sana'
+
+    def actions_column(self, obj):
+        """Actions column - can be customized with buttons"""
+        return "Tugma"
+    actions_column.short_description = 'Tugma'
+
     fieldsets = (
         ('Asosiy ma\'lumotlar', {
             'fields': ('employee', 'date')
@@ -94,7 +157,7 @@ class BalanceStatisticsAdmin(admin.ModelAdmin):
         'is_closed'
     )
     list_filter = (
-        'year',
+        YearFilter,
         'month',
         'is_closed',
         'employee'
