@@ -37,8 +37,8 @@ class IncomeExpense(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Kirim va chiqim'
-        verbose_name_plural = 'Kirim va chiqimlar'
+        verbose_name = '1. Доходы и расходы'
+        verbose_name_plural = '1. Доходы и расходы'
         ordering = ['-date', '-created_at']
 
     def __str__(self):
@@ -84,8 +84,8 @@ class IncomeExpenseStatistics(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Kirim va chiqim statistikasi'
-        verbose_name_plural = 'Kirim va chiqim statistikasi'
+        verbose_name = '2. Статистика доходов и расходов'
+        verbose_name_plural = '2. Статистика доходов и расходов'
         unique_together = ['year', 'month']
         ordering = ['-year', '-month']
 

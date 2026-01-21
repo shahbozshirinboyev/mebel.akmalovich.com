@@ -18,7 +18,8 @@ class Employee(models.Model):
     )
     full_name = models.CharField(
         max_length=200,
-        verbose_name='To\'liq ism'
+        verbose_name='To\'liq ism',
+        blank=True
     )
     position = models.CharField(
         max_length=100,
@@ -41,9 +42,20 @@ class Employee(models.Model):
         verbose_name='Yaratilgan vaqt'
     )
 
+    def save(self, *args, **kwargs):
+        """
+        Agar full_name bo‘sh bo‘lsa,
+        User'dan avtomatik to‘ldiriladi
+        """
+        if not self.full_name and self.user:
+            full_name = self.user.get_full_name()
+            self.full_name = full_name if full_name else self.user.username
+
+        super().save(*args, **kwargs)
+
     class Meta:
-        verbose_name = 'Сотрудник'
-        verbose_name_plural = 'Сотрудники'
+        verbose_name = '1. Сотрудник'
+        verbose_name_plural = '1. Сотрудники'
         ordering = ['-created_at']
 
     def __str__(self):
@@ -84,8 +96,8 @@ class Balance(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Баланс'
-        verbose_name_plural = 'Балансы'
+        verbose_name = '2. Баланс'
+        verbose_name_plural = '2. Балансы'
         ordering = ['-date', '-created_at']
 
     def __str__(self):
@@ -141,8 +153,8 @@ class BalanceStatistics(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Статистика баланса'
-        verbose_name_plural = 'Статистика баланса'
+        verbose_name = '3. Статистика баланса'
+        verbose_name_plural = '3. Статистика баланса'
         unique_together = ['employee', 'year', 'month']
         ordering = ['-year', '-month']
 
