@@ -95,7 +95,7 @@ class EmployeeAdmin(admin.ModelAdmin):
 @admin.register(Balance)
 class BalanceAdmin(admin.ModelAdmin):
     list_display = (
-        'id',
+        # 'id',
         'formatted_date',
         'employee',
         'earned_amount',
@@ -115,7 +115,7 @@ class BalanceAdmin(admin.ModelAdmin):
         'description'
     )
     readonly_fields = ('created_at', 'net_balance', 'actions_column')
-    date_hierarchy = 'date'
+    # Date hierarchy removed as requested
 
     def formatted_date(self, obj):
         """Format date as year, month"""
