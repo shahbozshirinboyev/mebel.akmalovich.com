@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum, F
 from accounts.models import User
 
 
@@ -146,11 +147,7 @@ class BalanceStatistics(models.Model):
         max_digits=12,
         decimal_places=2,
         default=0,
-        verbose_name='Qolgan balans'
-    )
-    is_closed = models.BooleanField(
-        default=False,
-        verbose_name='Yopilgan'
+        verbose_name='Oy bo\'yicha qoldig\'i'
     )
 
     class Meta:
@@ -161,3 +158,33 @@ class BalanceStatistics(models.Model):
 
     def __str__(self):
         return f"{self.employee.full_name} - {self.year}-{self.month:02d}"
+
+    @classmethod
+    def update_statistics(cls, employee, year, month):
+        """Balance modelidan statistikani yangilash"""
+        from django.db.models import Sum
+
+        # Oy uchun Balance yozuvlarini hisoblash
+        balances = Balance.objects.filter(
+            employee=employee,
+            date__year=year,
+            date__month=month
+        )
+
+        total_earned = balances.aggregate(total=Sum('earned_amount'))['total'] or 0
+        total_paid = balances.aggregate(total=Sum('paid_amount'))['total'] or 0
+        net_balance = total_earned - total_paid
+
+        # Statistikani yangilash yoki yaratish
+        statistics, created = cls.objects.update_or_create(
+            employee=employee,
+            year=year,
+            month=month,
+            defaults={
+                'total_earned': total_earned,
+                'total_paid': total_paid,
+                'net_balance': net_balance,
+            }
+        )
+
+        return statistics

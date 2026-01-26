@@ -9,7 +9,7 @@ from core.admin_mixins import PreserveFiltersAdminMixin
 
 
 class YearFilter(admin.SimpleListFilter):
-    """Custom year filter from 2020 to current year"""
+    """Custom year filter from 2020 to current year for models with date field"""
     title = _('Yil')
     parameter_name = 'year'
 
@@ -29,7 +29,7 @@ class YearFilter(admin.SimpleListFilter):
 
 
 class MonthFilter(admin.SimpleListFilter):
-    """Custom month filter for all 12 months"""
+    """Custom month filter for all 12 months for models with date field"""
     title = _('Oy')
     parameter_name = 'month'
 
@@ -54,6 +54,55 @@ class MonthFilter(admin.SimpleListFilter):
         """Filter queryset by selected month"""
         if self.value():
             return queryset.filter(date__month=self.value())
+        return queryset
+
+
+class StatisticsYearFilter(admin.SimpleListFilter):
+    """Custom year filter for BalanceStatistics model"""
+    title = _('Yil')
+    parameter_name = 'year'
+
+    def lookups(self, request, model_admin):
+        """Return list of years from 2020 to current year"""
+        current_year = datetime.now().year
+        years = []
+        for year in range(2020, current_year + 1):
+            years.append((str(year), str(year)))
+        return years
+
+    def queryset(self, request, queryset):
+        """Filter queryset by selected year for BalanceStatistics"""
+        if self.value():
+            return queryset.filter(year=self.value())
+        return queryset
+
+
+class StatisticsMonthFilter(admin.SimpleListFilter):
+    """Custom month filter for BalanceStatistics model"""
+    title = _('Oy')
+    parameter_name = 'month'
+
+    def lookups(self, request, model_admin):
+        """Return list of all 12 months"""
+        return [
+            ('1', 'Yanvar'),
+            ('2', 'Fevral'),
+            ('3', 'Mart'),
+            ('4', 'Aprel'),
+            ('5', 'May'),
+            ('6', 'Iyun'),
+            ('7', 'Iyul'),
+            ('8', 'Avgust'),
+            ('9', 'Sentabr'),
+            ('10', 'Oktabr'),
+            ('11', 'Noyabr'),
+            ('12', 'Dekabr'),
+        ]
+
+    def queryset(self, request, queryset):
+        """Filter queryset by selected month for BalanceStatistics"""
+        if self.value():
+            return queryset.filter(month=self.value())
         return queryset
 
 
@@ -162,20 +211,35 @@ class BalanceAdmin(PreserveFiltersAdminMixin, admin.ModelAdmin):
 
 @admin.register(BalanceStatistics)
 class BalanceStatisticsAdmin(PreserveFiltersAdminMixin, admin.ModelAdmin):
+    # Faqat ko'rish uchun, qo'lda kiritish mumkin emas
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     list_display = (
-        'id',
+        'formatted_month',
         'employee',
-        'year',
-        'month',
         'total_earned',
         'total_paid',
-        'net_balance',
-        'is_closed'
+        'net_balance'
     )
+
+    def formatted_month(self, obj):
+        """Oy nomini chiroyli ko'rsatish"""
+        month_names = {
+            1: 'Yanvar', 2: 'Fevral', 3: 'Mart', 4: 'Aprel',
+            5: 'May', 6: 'Iyun', 7: 'Iyul', 8: 'Avgust',
+            9: 'Sentabr', 10: 'Oktabr', 11: 'Noyabr', 12: 'Dekabr'
+        }
+        return month_names.get(obj.month, f'Oy {obj.month}')
+    formatted_month.short_description = 'Sana (faqat oy)'
     list_filter = (
-        YearFilter,
-        'month',
-        'is_closed',
+        StatisticsYearFilter,
         'employee'
     )
     search_fields = (
@@ -183,6 +247,55 @@ class BalanceStatisticsAdmin(PreserveFiltersAdminMixin, admin.ModelAdmin):
         'employee__position'
     )
     readonly_fields = ('net_balance',)
+
+    def changelist_view(self, request, extra_context=None):
+        # Call parent changelist_view first
+        response = super().changelist_view(request, extra_context)
+
+        # Check if year and employee are selected
+        year_filter = request.GET.get('year')
+        employee_filter = request.GET.get('employee')
+
+        if year_filter and employee_filter:
+            # Get all months for the selected year and employee
+            from django.contrib import messages
+            from django.db.models import Sum, Q
+
+            # Calculate yearly totals
+            yearly_data = BalanceStatistics.objects.filter(
+                year=year_filter,
+                employee_id=employee_filter
+            ).aggregate(
+                total_earned=Sum('total_earned'),
+                total_paid=Sum('total_paid'),
+                total_balance=Sum('net_balance')
+            )
+
+            messages.info(
+                request,
+                f"{year_filter}-yil uchun barcha 12 oy ma'lumotlari. "
+                f"Jami topilgan: {yearly_data['total_earned'] or 0}, "
+                f"Jami to'langan: {yearly_data['total_paid'] or 0}, "
+                f"Jami balans: {yearly_data['total_balance'] or 0}"
+            )
+
+        return response
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+
+        # Check if year and employee are selected
+        year_filter = request.GET.get('year')
+        employee_filter = request.GET.get('employee')
+
+        if year_filter and employee_filter:
+            # Filter by year and employee, show all months
+            qs = qs.filter(year=year_filter, employee_id=employee_filter)
+            # Order by month to show January to December
+            qs = qs.order_by('month')
+
+        return qs
+
     fieldsets = (
         ('Asosiy ma\'lumotlar', {
             'fields': ('employee', 'year', 'month')
