@@ -58,6 +58,9 @@ class Employee(models.Model):
         verbose_name = '1. Сотрудник'
         verbose_name_plural = '1. Сотрудники'
         ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(fields=['user'], name='unique_employee_user')
+        ]
 
     def __str__(self):
         return f"{self.full_name} - {self.position}"
@@ -108,7 +111,7 @@ class Balance(models.Model):
     @property
     def net_balance(self):
         """Qolgan balans"""
-        return self.earned_amount - self.paid_amount
+        return (self.earned_amount or 0) - (self.paid_amount or 0)
 
 
 class MonthBalanceStatistics(models.Model):

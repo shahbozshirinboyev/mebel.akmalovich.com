@@ -121,7 +121,7 @@ class EmployeeAdmin(LocalizedAmountAdminMixin, PreserveFiltersAdminMixin, admin.
     )
 
     class Media:
-        js = ('admin/js/employee_autofill.js',)
+        js = ('admin/js/employee_autofill.js', 'admin/js/format_thousands.js')
     list_filter = (
         'salary_type',
         'position',
