@@ -6,21 +6,30 @@ class User(AbstractUser):
     phone_number = models.CharField(
         max_length=20,
         blank=True,
-        null=True
+        null=True,
+        verbose_name="Телефон"
     )
+
     profile_picture = models.ImageField(
         upload_to='profiles/',
         blank=True,
-        null=True
+        null=True,
+        verbose_name="Фото профиля"
     )
 
-    # rollar
-    is_worker = models.BooleanField(default=False)
-    is_manager = models.BooleanField(default=False)
+    is_worker = models.BooleanField(
+    default=False,
+    verbose_name="Сотрудник"
+)
+
+    is_manager = models.BooleanField(
+        default=False,
+        verbose_name="Менеджер"
+    )
 
     def __str__(self):
         return self.username
 
     class Meta:
-        verbose_name = "1. Пользователь"
-        verbose_name_plural = "1. Пользователи"
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"

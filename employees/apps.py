@@ -3,7 +3,7 @@ from django.apps import AppConfig
 
 class EmployeesConfig(AppConfig):
     name = 'employees'
-    verbose_name = '2. Employees'
+    verbose_name = 'Employees'
 
     def ready(self):
         import employees.signals
