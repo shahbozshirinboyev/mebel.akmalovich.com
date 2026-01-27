@@ -55,8 +55,8 @@ class Employee(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        verbose_name = '1. Сотрудник'
-        verbose_name_plural = '1. Сотрудники'
+        verbose_name = 'Сотрудник'
+        verbose_name_plural = 'Сотрудники'
         ordering = ['-created_at']
         constraints = [
             models.UniqueConstraint(fields=['user'], name='unique_employee_user')
@@ -100,8 +100,8 @@ class Balance(models.Model):
     )
 
     class Meta:
-        verbose_name = '2. Баланс'
-        verbose_name_plural = '2. Балансы'
+        verbose_name = 'Баланс'
+        verbose_name_plural = 'Балансы'
         ordering = ['-date', '-created_at']
         unique_together = ('employee', 'date')
 
@@ -154,8 +154,8 @@ class MonthBalanceStatistics(models.Model):
     )
 
     class Meta:
-        verbose_name = '3. Статистика за месяц'
-        verbose_name_plural = '3. Статистика за месяц'
+        verbose_name = 'Статистика за месяц'
+        verbose_name_plural = 'Статистика за месяц'
         unique_together = ['employee', 'year', 'month']
         ordering = ['-year', '-month']
 
@@ -231,8 +231,8 @@ class YearlyBalanceStatistics(models.Model):
     )
 
     class Meta:
-        verbose_name = '4. Статистика за год'
-        verbose_name_plural = '4. Статистика за год'
+        verbose_name = 'Статистика за год'
+        verbose_name_plural = 'Статистика за год'
         unique_together = ['employee', 'year']
         ordering = ['-year', 'employee__full_name']
 

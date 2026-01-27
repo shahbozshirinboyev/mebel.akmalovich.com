@@ -65,8 +65,8 @@ class FinancialPerformanceIndicator(models.Model):
     )
 
     class Meta:
-        verbose_name = "1. Финансовый показатель"
-        verbose_name_plural = "1. Финансовые показатели"
+        verbose_name = "Финансовый показатель"
+        verbose_name_plural = "Финансовые показатели"
 
         unique_together = ['year', 'month']
         ordering = ['-year', '-month']

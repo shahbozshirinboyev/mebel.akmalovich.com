@@ -37,8 +37,8 @@ class IncomeExpense(models.Model):
     )
 
     class Meta:
-        verbose_name = '1. Доходы и расходы'
-        verbose_name_plural = '1. Доходы и расходы'
+        verbose_name = 'Доходы и расходы'
+        verbose_name_plural = 'Доходы и расходы'
         ordering = ['-date', '-created_at']
 
     def __str__(self):
@@ -84,8 +84,8 @@ class IncomeExpenseStatistics(models.Model):
     )
 
     class Meta:
-        verbose_name = '2. Статистика доходов и расходов'
-        verbose_name_plural = '2. Статистика доходов и расходов'
+        verbose_name = 'Статистика доходов и расходов'
+        verbose_name_plural = 'Статистика доходов и расходов'
         unique_together = ['year', 'month']
         ordering = ['-year', '-month']
 
