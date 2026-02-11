@@ -8,7 +8,9 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     is_worker = models.BooleanField(
         _("worker"),
-        default=False,)
+        default=False,
+        help_text=_("Yangi foydalanuvchi xodim yoki xodim emas."),
+        )
 
     def __str__(self):
         return self.username
