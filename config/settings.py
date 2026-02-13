@@ -124,3 +124,4 @@ STATIC_URL = 'static/'
 
 # Brauzerlarga xavfsizlik qoidalarini yaxshiroq tushunishga yordam beradi
 SECURE_REFERRER_POLICY = "same-origin"
+USE_THOUSAND_SEPARATOR = True

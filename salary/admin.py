@@ -9,13 +9,9 @@ User = get_user_model()
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-	list_display = ("full_name", "user", "phone_number", "position", "salary_type", "f_base_salary", "created_at")
+	list_display = ("full_name", "user", "phone_number", "position", "salary_type", "base_salary", "created_at")
 	list_filter = ()
 	search_fields = ()
-
-	def f_base_salary(self, obj):
-		return "{:,}".format(obj.base_salary).replace(',', ' ')
-	f_base_salary.short_description = 'Base Salary (uzs)'
 
 	class Media:
 		js = ("admin/js/user_autofill.js",)
@@ -57,14 +53,6 @@ class EmployeeAdmin(admin.ModelAdmin):
 
 @admin.register(Salary)
 class SalaryAdmin(admin.ModelAdmin):
-	list_display = ("employee", "date", "f_earned_amount", "earned_note", "f_paid_amount", "paid_note", "created_at")
+	list_display = ("employee", "date", "earned_amount", "earned_note", "paid_amount", "paid_note", "created_at")
 	list_filter = ()
 	search_fields = ()
-
-	def f_paid_amount(self, obj):
-		return "{:,}".format(obj.paid_amount).replace(',', ' ')
-	f_paid_amount.short_description = 'Paid (uzs)'
-
-	def f_earned_amount(self, obj):
-		return "{:,}".format(obj.earned_amount).replace(',', ' ')
-	f_earned_amount.short_description = 'Earned (uzs)'
