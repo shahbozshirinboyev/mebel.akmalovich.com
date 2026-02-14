@@ -46,7 +46,7 @@ class Sale(models.Model):
 		ordering = ["-created_at"]
 
 	def __str__(self):
-		return f"Sale {self.id} - {self.date}"
+		return f"Sale {self.date}"
 
 
 class SaleItem(models.Model):
@@ -55,12 +55,20 @@ class SaleItem(models.Model):
 	product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
 	quantity = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 	price = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+	total = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True, default=0)
 	buyer = models.ForeignKey(Buyer, on_delete=models.SET_NULL, null=True, blank=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
 		verbose_name = "Sale Item"
 		verbose_name_plural = "Sale Items"
+
+	def save(self, *args, **kwargs):
+		if self.quantity and self.price:
+			self.total = self.quantity * self.price
+		else:
+			self.total = 0
+		super().save(*args, **kwargs)
 
 	def __str__(self):
 		return self.product.product_name

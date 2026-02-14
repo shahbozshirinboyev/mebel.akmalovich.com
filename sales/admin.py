@@ -7,13 +7,17 @@ from .models import Buyer, Product, Sale, SaleItem
 class SaleItemInline(admin.TabularInline):
 	model = SaleItem
 	extra = 0
-	fields = ("product", "quantity", "price", "buyer")
+	fields = ("product", "quantity", "price", "total", "buyer")
+	readonly_fields = ("total",)
 
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
-      list_display = ("id", "date", "total_price", "created_at")
+      list_display = ("date", "created_by", "total_price", "description", "created_at")
       inlines = (SaleItemInline,)
       readonly_fields = ("total_price",)
+
+      class Media:
+            js = ('sales/js/calculate_total.js',)
 
       # ADD form ochilganda initial qiymat
       def get_changeform_initial_data(self, request):
@@ -38,14 +42,15 @@ class SaleAdmin(admin.ModelAdmin):
 
 @admin.register(SaleItem)
 class SaleItemAdmin(admin.ModelAdmin):
-	list_display = ("product", "quantity", "price", "buyer", "created_at", "sale", "id" )
+	list_display = ("product", "quantity", "price", "total", "buyer", "sale", "created_at" )
+	readonly_fields = ("total",)
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-	list_display = ("product_name", "measurement_unit", "created_at", "id")
+	list_display = ("product_name", "measurement_unit", "created_at")
 
 
 @admin.register(Buyer)
 class BuyerAdmin(admin.ModelAdmin):
-	list_display = ("name", "sign", "phone_number", "created_at", "id")
+	list_display = ("name", "sign", "phone_number", "created_at")
