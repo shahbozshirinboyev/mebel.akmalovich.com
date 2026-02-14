@@ -8,7 +8,7 @@ class SaleItemInline(admin.TabularInline):
 	model = SaleItem
 	extra = 0
 	fields = ("product", "quantity", "price", "buyer")
-      
+
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
       list_display = ("id", "date", "total_price", "created_at")
@@ -38,7 +38,7 @@ class SaleAdmin(admin.ModelAdmin):
 
 @admin.register(SaleItem)
 class SaleItemAdmin(admin.ModelAdmin):
-	list_display = ("id", "sale", "product", "quantity", "price", "buyer")
+	list_display = ("product", "quantity", "price", "buyer", "created_at", "sale", "id" )
 
 
 @admin.register(Product)

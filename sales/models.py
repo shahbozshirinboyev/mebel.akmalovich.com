@@ -56,6 +56,7 @@ class SaleItem(models.Model):
 	quantity = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 	price = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
 	buyer = models.ForeignKey(Buyer, on_delete=models.SET_NULL, null=True, blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
 		verbose_name = "Sale Item"
