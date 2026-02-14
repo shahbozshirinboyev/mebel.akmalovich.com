@@ -38,7 +38,7 @@ class SaleAdmin(admin.ModelAdmin):
           return f"{total:.2f}"
 
       total_price.short_description = "Umumiy sotuv"
-
+      exclude = ('created_by',)
 
 @admin.register(SaleItem)
 class SaleItemAdmin(admin.ModelAdmin):
