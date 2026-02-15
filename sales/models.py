@@ -52,7 +52,7 @@ class Sale(models.Model):
 class SaleItem(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name="sotuvlar")
-	product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+	product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="sale_items")
 	quantity = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 	price = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
 	total = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True, default=0)
@@ -71,4 +71,6 @@ class SaleItem(models.Model):
 		super().save(*args, **kwargs)
 
 	def __str__(self):
-		return self.product.product_name
+		if self.product:
+			return self.product.product_name
+		return "Mahsulot tanlanmagan"
