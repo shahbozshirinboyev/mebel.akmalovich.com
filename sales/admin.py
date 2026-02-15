@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.db import models
+from django.forms import TextInput
+from django.db import models as dj_models
 from .models import Buyer, Product, Sale, SaleItem
 
 
@@ -9,6 +11,10 @@ class SaleItemInline(admin.TabularInline):
 	fields = ("product", "quantity", "price", "total", "buyer")
 	# readonly_fields = ("total",)
 
+	formfield_overrides = {
+		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+	}
+
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
       list_display = ("date", "created_by", "total_price", "description", "created_at")
@@ -16,7 +22,7 @@ class SaleAdmin(admin.ModelAdmin):
     #   readonly_fields = ("total_price",)
 
       class Media:
-            js = ('sales/js/calculate_total.js',)
+            js = ('sales/js/calculate_total.js', 'sales/js/decimal_thousands.js',)
 
       # ADD form ochilganda initial qiymat
       def get_changeform_initial_data(self, request):
@@ -44,13 +50,24 @@ class SaleItemAdmin(admin.ModelAdmin):
 	list_display = ("product", "quantity", "price", "total", "buyer", "sale", "created_at" )
 	# readonly_fields = ("total",)
 
+	formfield_overrides = {
+		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+	}
+
 	class Media:
-		js = ('sales/js/calculate_total.js',)
+		js = ('sales/js/calculate_total.js', 'sales/js/decimal_thousands.js',)
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
 	list_display = ("product_name", "measurement_unit", "created_at")
+
+	formfield_overrides = {
+		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+	}
+
+	class Media:
+		js = ('sales/js/decimal_thousands.js',)
 
 
 @admin.register(Buyer)
