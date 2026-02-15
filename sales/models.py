@@ -49,13 +49,18 @@ class Sale(models.Model):
 		return f"Sale {self.date}"
 
 	def save(self, *args, **kwargs):
+		# First save the Sale instance
 		super().save(*args, **kwargs)
-		# Barcha SaleItem larning total yig'indisini hisoblash
+
+		# Calculate total from related SaleItems
 		total_sum = self.sotuvlar.aggregate(
 			total=models.Sum('total')
 		)['total'] or 0
-		self.total_price = total_sum
-		super().save(update_fields=['total_price'])
+
+		# Update total_price if different
+		if self.total_price != total_sum:
+			self.total_price = total_sum
+			super().save(update_fields=['total_price'])
 
 
 class SaleItem(models.Model):
@@ -78,6 +83,10 @@ class SaleItem(models.Model):
 		else:
 			self.total = 0
 		super().save(*args, **kwargs)
+
+		# Update the parent Sale's total_price after saving SaleItem
+		if self.sale:
+			self.sale.save()
 
 	def __str__(self):
 		if self.product:

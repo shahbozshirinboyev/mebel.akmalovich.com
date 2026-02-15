@@ -38,6 +38,13 @@ class SaleAdmin(admin.ModelAdmin):
               obj.created_by = request.user
           super().save_model(request, obj, form, change)
 
+          # Calculate total_price after saving Sale and all inline items
+          total_sum = obj.sotuvlar.aggregate(
+              total=models.Sum('total')
+          )['total'] or 0
+          obj.total_price = total_sum
+          obj.save(update_fields=['total_price'])
+
       # total_price hisoblash
       def total_price(self, obj):
           total = obj.sotuvlar.aggregate(
