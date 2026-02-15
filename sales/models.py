@@ -48,6 +48,15 @@ class Sale(models.Model):
 	def __str__(self):
 		return f"Sale {self.date}"
 
+	def save(self, *args, **kwargs):
+		super().save(*args, **kwargs)
+		# Barcha SaleItem larning total yig'indisini hisoblash
+		total_sum = self.sotuvlar.aggregate(
+			total=models.Sum('total')
+		)['total'] or 0
+		self.total_price = total_sum
+		super().save(update_fields=['total_price'])
+
 
 class SaleItem(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

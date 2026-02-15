@@ -2,6 +2,38 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('1. DOM yuklandi');
 
+    function updateTotalPrice() {
+        // Barcha inline qatorlardagi total larni yig'ish
+        const inlineRows1 = document.querySelectorAll('.dynamic-saleitem_set tbody tr');
+        const inlineRows2 = document.querySelectorAll('.inline-related tbody tr');
+        const inlineRows3 = document.querySelectorAll('tr.dynamic-saleitem_set');
+        const allRows = document.querySelectorAll('tbody tr');
+
+        const inlineRows = inlineRows1.length > 0 ? inlineRows1 :
+                         inlineRows2.length > 0 ? inlineRows2 :
+                         inlineRows3.length > 0 ? inlineRows3 : allRows;
+
+        let grandTotal = 0;
+
+        inlineRows.forEach(function(row, index) {
+            const totalInput = row.querySelector('input[name*="-total"]');
+            if (totalInput && totalInput.value) {
+                const totalValue = parseFloat(totalInput.value) || 0;
+                grandTotal += totalValue;
+                console.log(`Row ${index} total:`, totalValue, 'Grand total:', grandTotal);
+            }
+        });
+
+        // Total price maydonini yangilash
+        const totalPriceField = document.querySelector('#id_total_price, input[name="total_price"]');
+        if (totalPriceField) {
+            totalPriceField.value = grandTotal.toFixed(2);
+            console.log('Total price updated:', grandTotal.toFixed(2));
+        } else {
+            console.log('Total price field not found');
+        }
+    }
+
     // Standalone form uchun
     const quantity = document.querySelector('#id_quantity, input[name="quantity"]');
     const price = document.querySelector('#id_price, input[name="price"]');
@@ -75,6 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const natija = (q * p).toFixed(2);
                     totalInput.value = natija;
                     console.log(`Inline ${index} total updated:`, natija);
+
+                    // Total price ni ham yangilash
+                    updateTotalPrice();
                 }
 
                 quantityInput.addEventListener('input', updateInlineTotal);
@@ -87,6 +122,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
+
+        // Dastlabki total price ni hisoblash
+        updateTotalPrice();
     }
 
     // Dastlabki qatorlarni sozlash
@@ -97,16 +135,45 @@ document.addEventListener('DOMContentLoaded', function() {
         mutations.forEach(function(mutation) {
             if (mutation.addedNodes.length) {
                 mutation.addedNodes.forEach(function(node) {
-                    if (node.classList && node.classList.contains('dynamic-saleitem_set')) {
-                        setupInlineRows();
+                    // Yangi qatorlarni tekshirish
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        // Agar yangi qator qo'shilgan bo'lsa
+                        if (node.classList && node.classList.contains('dynamic-saleitem_set')) {
+                            console.log('New saleitem_set detected');
+                            setupInlineRows();
+                        }
+                        // Agar yangi tbody qo'shilgan bo'lsa
+                        else if (node.tagName === 'TBODY') {
+                            console.log('New tbody detected');
+                            setupInlineRows();
+                        }
+                        // Agar yangi tr qo'shilgan bo'lsa
+                        else if (node.tagName === 'TR' && node.querySelector('input[name*="-quantity"]')) {
+                            console.log('New row detected');
+                            setupInlineRows();
+                        }
+                        // Agar container ichida yangi qatorlar bo'lsa
+                        else {
+                            const rows = node.querySelectorAll ? node.querySelectorAll('tr') : [];
+                            if (rows.length > 0) {
+                                console.log('New container with rows detected');
+                                setupInlineRows();
+                            }
+                        }
                     }
                 });
             }
         });
     });
 
-    const formContainer = document.querySelector('div[id*="saleitem_set-group"]') || document.querySelector('.inline-group');
+    const formContainer = document.querySelector('div[id*="saleitem_set-group"]') || document.querySelector('.inline-group') || document.body;
     if (formContainer) {
-        observer.observe(formContainer, { childList: true, subtree: true });
+        console.log('Observing container:', formContainer);
+        observer.observe(formContainer, {
+            childList: true,
+            subtree: true,
+            attributes: false,
+            characterData: false
+        });
     }
 });
