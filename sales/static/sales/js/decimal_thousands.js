@@ -68,7 +68,10 @@
 
   function stripSeparatorsBeforeSubmit(form){
     form.querySelectorAll('.thousand-sep').forEach(function(inp){
-      if(inp.value) inp.value = cleanRaw(inp.value).replace(/\s+/g, '');
+      if(inp.value) {
+        const cleanValue = cleanRaw(inp.value).replace(/\s+/g, '');
+        inp.value = cleanValue;
+      }
     });
   }
 
@@ -80,23 +83,72 @@
       const t = (el.type || '').toLowerCase();
       // only target text-like inputs (avoid date/time, datetime-local, number, etc.)
       if(!['text','search','tel'].includes(t)) return false;
-      // allow if current value looks numeric (digits, spaces, dots, commas) or empty
+
+      // Check if input has thousand-sep class or looks numeric
+      const hasThousandClass = el.classList.contains('thousand-sep');
       const v = el.value || '';
-      return v === '' || /^[0-9\s.,]*$/.test(v);
+      const looksNumeric = v === '' || /^[0-9\s.,]*$/.test(v);
+
+      return hasThousandClass || looksNumeric;
+    }
+
+    function setupThousandSeparator(inputs) {
+      inputs.forEach(function(i){
+        // Add thousand-sep class if not present
+        if (!i.classList.contains('thousand-sep')) {
+          i.classList.add('thousand-sep');
+        }
+
+        // Remove existing listeners to avoid duplicates
+        i.removeEventListener('input', onInput);
+
+        // initialize formatted value
+        i.value = formatFromRaw(cleanRaw(i.value));
+        i.addEventListener('input', onInput);
+        // also format on blur
+        i.addEventListener('blur', function(e){ e.target.value = formatFromRaw(cleanRaw(e.target.value)); });
+      });
     }
 
     const inputs = all.filter(isNumericLikeInput);
-    inputs.forEach(function(i){
-      // initialize formatted value
-      i.value = formatFromRaw(cleanRaw(i.value));
-      i.addEventListener('input', onInput);
-      // also format on blur
-      i.addEventListener('blur', function(e){ e.target.value = formatFromRaw(cleanRaw(e.target.value)); });
-    });
+    setupThousandSeparator(inputs);
 
     // strip separators on any admin form submit
     Array.from(document.querySelectorAll('form')).forEach(function(f){
       f.addEventListener('submit', function(){ stripSeparatorsBeforeSubmit(f); });
+    });
+
+    // Watch for dynamically added rows and apply thousand separator
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.addedNodes.length) {
+          mutation.addedNodes.forEach(function(node) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              // Find all numeric inputs in the new node
+              const newInputs = node.querySelectorAll ? node.querySelectorAll('input') : [];
+              const numericInputs = Array.from(newInputs).filter(isNumericLikeInput);
+
+              if (numericInputs.length > 0) {
+                console.log('Found new numeric inputs:', numericInputs.length);
+                setupThousandSeparator(numericInputs);
+              }
+
+              // Also check if the node itself is an input
+              if (node.tagName === 'INPUT' && isNumericLikeInput(node)) {
+                setupThousandSeparator([node]);
+              }
+            }
+          });
+        }
+      });
+    });
+
+    // Start observing the entire document for changes
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: false,
+      characterData: false
     });
   });
 })();

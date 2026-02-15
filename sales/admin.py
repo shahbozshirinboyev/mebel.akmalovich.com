@@ -21,6 +21,10 @@ class SaleAdmin(admin.ModelAdmin):
       inlines = (SaleItemInline,)
     #   readonly_fields = ("total_price",)
 
+      formfield_overrides = {
+		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+	  }
+
       class Media:
             js = ('sales/js/calculate_total.js', 'sales/js/decimal_thousands.js',)
 

@@ -18,7 +18,9 @@ document.addEventListener('DOMContentLoaded', function() {
         inlineRows.forEach(function(row, index) {
             const totalInput = row.querySelector('input[name*="-total"]');
             if (totalInput && totalInput.value) {
-                const totalValue = parseFloat(totalInput.value) || 0;
+                // Clean formatted value before parsing
+                const totalStr = totalInput.value.replace(/\s+/g, '').replace(/,/g, '.');
+                const totalValue = parseFloat(totalStr) || 0;
                 grandTotal += totalValue;
                 console.log(`Row ${index} total:`, totalValue, 'Grand total:', grandTotal);
             }
@@ -28,6 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const totalPriceField = document.querySelector('#id_total_price, input[name="total_price"]');
         if (totalPriceField) {
             totalPriceField.value = grandTotal.toFixed(2);
+            // Trigger formatting for the total price field
+            totalPriceField.dispatchEvent(new Event('input'));
             console.log('Total price updated:', grandTotal.toFixed(2));
         } else {
             console.log('Total price field not found');
@@ -45,8 +49,11 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('5. Inputlar topildi!');
 
         function hisobla() {
-            const q = parseFloat(quantity.value) || 0;
-            const p = parseFloat(price.value) || 0;
+            // Clean formatted values before parsing
+            const qStr = quantity.value.replace(/\s+/g, '').replace(/,/g, '.');
+            const pStr = price.value.replace(/\s+/g, '').replace(/,/g, '.');
+            const q = parseFloat(qStr) || 0;
+            const p = parseFloat(pStr) || 0;
             const natija = (q * p).toFixed(2);
             console.log('6. Qiymatlar:', q, p, 'Natija:', natija);
 
@@ -54,6 +61,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const total = document.querySelector('#id_total, input[name="total"]');
             if (total) {
                 total.value = natija;
+                // Trigger formatting for the total field
+                total.dispatchEvent(new Event('input'));
                 console.log('7. Total maydoni yangilandi:', natija);
             } else {
                 console.error('Total maydoni topilmadi!');
@@ -102,11 +111,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (quantityInput && priceInput && totalInput) {
                 function updateInlineTotal() {
-                    const q = parseFloat(quantityInput.value) || 0;
-                    const p = parseFloat(priceInput.value) || 0;
+                    // Clean formatted values before parsing
+                    const qStr = quantityInput.value.replace(/\s+/g, '').replace(/,/g, '.');
+                    const pStr = priceInput.value.replace(/\s+/g, '').replace(/,/g, '.');
+                    const q = parseFloat(qStr) || 0;
+                    const p = parseFloat(pStr) || 0;
                     const natija = (q * p).toFixed(2);
                     totalInput.value = natija;
                     console.log(`Inline ${index} total updated:`, natija);
+
+                    // Trigger formatting for the total field
+                    totalInput.dispatchEvent(new Event('input'));
 
                     // Total price ni ham yangilash
                     updateTotalPrice();
