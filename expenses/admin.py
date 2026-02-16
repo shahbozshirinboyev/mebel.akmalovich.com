@@ -29,8 +29,11 @@ class FoodItemInline(admin.TabularInline):
     readonly_fields = ('total_item_price_display',)
 
     def total_item_price_display(self, obj):
-        return f"{obj.total_item_price:,}" # 1,000,000 ko'rinishida formatlash
+        if obj.pk:
+            return f"{obj.total_item_price:,}"
+        return '<span class="total-item-price-display">0.00</span>'
     total_item_price_display.short_description = "Total Price"
+    total_item_price_display.allow_tags = True
 
 class RawItemInline(admin.TabularInline):
     model = RawItem
@@ -39,8 +42,11 @@ class RawItemInline(admin.TabularInline):
     readonly_fields = ('total_item_price_display',)
 
     def total_item_price_display(self, obj):
-        return f"{obj.total_item_price:,}"
+        if obj.pk:
+            return f"{obj.total_item_price:,}"
+        return '<span class="total-item-price-display">0.00</span>'
     total_item_price_display.short_description = "Total Price"
+    total_item_price_display.allow_tags = True
 
 # --- Expenses Admin ---
 
@@ -54,6 +60,9 @@ class ExpensesAdmin(admin.ModelAdmin):
     # total_cost modelda editable=False bo'lgani uchun readonly_fields'ga qo'shish kerak
     readonly_fields = ('total_cost',)
     exclude = ('created_by',)
+
+    class Media:
+        js = ('expenses/js/calculate_total.js',)
 
     def save_formset(self, request, form, formset, change):
         """
