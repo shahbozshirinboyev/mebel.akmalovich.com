@@ -12,6 +12,14 @@ class RawMaterialsAdmin(admin.ModelAdmin):
     list_display = ('raw_material_name', 'measurement_unit', 'created_at')
     search_fields = ('raw_material_name',)
 
+@admin.register(FoodItem)
+class FoodItemAdmin(admin.ModelAdmin):
+	list_display = ("food_product", "quantity", "price", "total_item_price", "created_at" )
+
+@admin.register(RawItem)
+class RawItemAdmin(admin.ModelAdmin):
+	list_display = ("raw_material", "quantity", "price", "total_item_price", "created_at" )
+
 # --- Inlines: Expenses ichida ko'rinadigan qismlar ---
 
 class FoodItemInline(admin.TabularInline):
