@@ -14,11 +14,11 @@ class RawMaterialsAdmin(admin.ModelAdmin):
 
 @admin.register(FoodItem)
 class FoodItemAdmin(admin.ModelAdmin):
-	list_display = ("food_product", "quantity", "price", "total_item_price", "created_at" )
+	list_display = ("food_product", "quantity", "price", "total_item_price", "expense", "created_at" )
 
 @admin.register(RawItem)
 class RawItemAdmin(admin.ModelAdmin):
-	list_display = ("raw_material", "quantity", "price", "total_item_price", "created_at" )
+	list_display = ("raw_material", "quantity", "price", "total_item_price", "expense", "created_at" )
 
 # --- Inlines: Expenses ichida ko'rinadigan qismlar ---
 
@@ -30,7 +30,7 @@ class FoodItemInline(admin.TabularInline):
 
     def total_item_price_display(self, obj):
         return f"{obj.total_item_price:,}" # 1,000,000 ko'rinishida formatlash
-    total_item_price_display.short_description = "Jami summa"
+    total_item_price_display.short_description = "Total Price"
 
 class RawItemInline(admin.TabularInline):
     model = RawItem
@@ -40,7 +40,7 @@ class RawItemInline(admin.TabularInline):
 
     def total_item_price_display(self, obj):
         return f"{obj.total_item_price:,}"
-    total_item_price_display.short_description = "Jami summa"
+    total_item_price_display.short_description = "Total Price"
 
 # --- Expenses Admin ---
 

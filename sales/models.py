@@ -46,7 +46,7 @@ class Sale(models.Model):
 		ordering = ["-created_at"]
 
 	def __str__(self):
-		return f"Sale {self.date}"
+		return f"Sale - {self.date}"
 
 	def save(self, *args, **kwargs):
 		# First save the Sale instance

@@ -58,7 +58,7 @@ class Expenses(models.Model):
         self.save()
 
     def __str__(self):
-        return f"Expense - {self.date} (Total: {self.total_cost})"
+        return f"Expense - {self.date}"
 
 class FoodItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
