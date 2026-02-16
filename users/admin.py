@@ -10,7 +10,7 @@ admin.site.unregister(Group)
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
     # Ko'rsatiladigan ustunlar
-    list_display = ('username', 'first_name', 'last_name',  'phone_number', 'is_worker', 'is_staff', 'is_active', 'is_superuser', 'last_login', 'date_joined')
+    list_display = ('username', 'full_name',  'phone_number', 'is_worker', 'is_staff', 'is_active', 'is_superuser', 'last_login', 'date_joined')
     list_filter = ()
     search_fields = ()
 
