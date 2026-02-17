@@ -1,6 +1,17 @@
 (function($) {
     $(document).ready(function() {
         function calculateTotal() {
+            // For single form (FoodItem or RawItem add)
+            var quantity = parseFloat($('input[name="quantity"]').val()) || 0;
+            var price = parseFloat($('input[name="price"]').val()) || 0;
+            var total = quantity * price;
+            var formattedTotal = total.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            $('.field-total_item_price .readonly').text(formattedTotal);
+            $('#id_total_item_price').closest('.form-row').find('.readonly').text(formattedTotal);
+
             var foodTotal = 0;
             var rawTotal = 0;
 
