@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.db import models as dj_models
+from django.forms import TextInput
+from django.utils.formats import number_format
 from .models import FoodProducts, RawMaterials, Expenses, FoodItem, RawItem
 
 # Mahsulotlar va xomashyolarni oddiy ro'yxat sifatida ro'yxatdan o'tkazamiz
@@ -17,16 +20,24 @@ class FoodItemAdmin(admin.ModelAdmin):
 	list_display = ("food_product", "quantity", "price", "total_item_price", "expense", "created_at" )
 	readonly_fields = ("total_item_price",)
 
+	formfield_overrides = {
+		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+	}
+
 	class Media:
-		js = ('expenses/js/calculate_total.js',)
+		js = ('expenses/js/calculate_total.js', 'expenses/js/decimal_thousands.js',)
 
 @admin.register(RawItem)
 class RawItemAdmin(admin.ModelAdmin):
 	list_display = ("raw_material", "quantity", "price", "total_item_price", "expense", "created_at" )
 	readonly_fields = ("total_item_price",)
 
+	formfield_overrides = {
+		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+	}
+
 	class Media:
-		js = ('expenses/js/calculate_total.js',)
+		js = ('expenses/js/calculate_total.js', 'expenses/js/decimal_thousands.js',)
 
 # --- Inlines: Expenses ichida ko'rinadigan qismlar ---
 
@@ -36,9 +47,13 @@ class FoodItemInline(admin.TabularInline):
     fields = ('food_product', 'quantity', 'price', 'total_item_price_display')
     readonly_fields = ('total_item_price_display',)
 
+    formfield_overrides = {
+		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+	}
+
     def total_item_price_display(self, obj):
         if obj.pk:
-            return f"{obj.total_item_price:,}"
+            return number_format(obj.total_item_price, decimal_pos=2, use_l10n=True)
         return '<span class="total-item-price-display">0.00</span>'
     total_item_price_display.short_description = "Total Price"
     total_item_price_display.allow_tags = True
@@ -49,9 +64,13 @@ class RawItemInline(admin.TabularInline):
     fields = ('raw_material', 'quantity', 'price', 'total_item_price_display')
     readonly_fields = ('total_item_price_display',)
 
+    formfield_overrides = {
+		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+	}
+
     def total_item_price_display(self, obj):
         if obj.pk:
-            return f"{obj.total_item_price:,}"
+            return number_format(obj.total_item_price, decimal_pos=2, use_l10n=True)
         return '<span class="total-item-price-display">0.00</span>'
     total_item_price_display.short_description = "Total Price"
     total_item_price_display.allow_tags = True
@@ -69,8 +88,12 @@ class ExpensesAdmin(admin.ModelAdmin):
     readonly_fields = ('food_items_total', 'raw_items_total', 'total_cost')
     exclude = ('created_by',)
 
+    formfield_overrides = {
+		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+	}
+
     class Media:
-        js = ('expenses/js/calculate_total.js',)
+        js = ('expenses/js/calculate_total.js', 'expenses/js/decimal_thousands.js',)
 
     def save_formset(self, request, form, formset, change):
         """

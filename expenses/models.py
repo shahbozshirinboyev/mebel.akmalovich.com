@@ -84,7 +84,7 @@ class FoodItem(models.Model):
     @property
     def total_item_price(self):
         total = self.quantity * self.price
-        return number_format(total, decimal_pos=2)
+        return total
 
     def __str__(self):
         return f"{self.food_product.food_product_name} - {self.quantity}"
@@ -104,7 +104,7 @@ class RawItem(models.Model):
     @property
     def total_item_price(self):
         total = self.quantity * self.price
-        return number_format(total, decimal_pos=2)
+        return total
 
     def __str__(self):
         return f"{self.raw_material.raw_material_name} - {self.quantity}"
