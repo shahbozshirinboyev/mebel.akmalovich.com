@@ -61,18 +61,21 @@ class SaleAdmin(admin.ModelAdmin):
       total_price.short_description = "Umumiy sotuv"
       exclude = ('created_by',)
 
-@admin.register(SaleItem)
-class SaleItemAdmin(admin.ModelAdmin):
-	list_display = ("product", "quantity", "price", "total", "buyer", "sale", "created_at" )
-	# readonly_fields = ("total",)
+# ----------------------------------------------------------------------
 
-	formfield_overrides = {
-		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
-	}
+# @admin.register(SaleItem)
+# class SaleItemAdmin(admin.ModelAdmin):
+# 	list_display = ("product", "quantity", "price", "total", "buyer", "sale", "created_at" )
+# 	# readonly_fields = ("total",)
 
-	class Media:
-		js = ('sales/js/calculate_total.js', 'sales/js/decimal_thousands.js',)
+# 	formfield_overrides = {
+# 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+# 	}
 
+# 	class Media:
+# 		js = ('sales/js/calculate_total.js', 'sales/js/decimal_thousands.js',)
+
+# ----------------------------------------------------------------------
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):

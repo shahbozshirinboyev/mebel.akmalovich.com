@@ -14,30 +14,33 @@ class FoodProductsAdmin(admin.ModelAdmin):
 class RawMaterialsAdmin(admin.ModelAdmin):
     list_display = ('raw_material_name', 'measurement_unit', 'created_at')
     # search_fields = ('raw_material_name',)
+    
+# ----------------------------------------------------------------------
+# @admin.register(FoodItem)
+# class FoodItemAdmin(admin.ModelAdmin):
+# 	list_display = ("food_product", "quantity", "price", "total_item_price", "expense", "created_at" )
+# 	readonly_fields = ("total_item_price",)
 
-@admin.register(FoodItem)
-class FoodItemAdmin(admin.ModelAdmin):
-	list_display = ("food_product", "quantity", "price", "total_item_price", "expense", "created_at" )
-	readonly_fields = ("total_item_price",)
+# 	formfield_overrides = {
+# 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+# 	}
 
-	formfield_overrides = {
-		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
-	}
+# 	class Media:
+# 		js = ('expenses/js/calculate_total.js', 'expenses/js/decimal_thousands.js',)
 
-	class Media:
-		js = ('expenses/js/calculate_total.js', 'expenses/js/decimal_thousands.js',)
+# @admin.register(RawItem)
+# class RawItemAdmin(admin.ModelAdmin):
+# 	list_display = ("raw_material", "quantity", "price", "total_item_price", "expense", "created_at" )
+# 	readonly_fields = ("total_item_price",)
 
-@admin.register(RawItem)
-class RawItemAdmin(admin.ModelAdmin):
-	list_display = ("raw_material", "quantity", "price", "total_item_price", "expense", "created_at" )
-	readonly_fields = ("total_item_price",)
+# 	formfield_overrides = {
+# 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+# 	}
 
-	formfield_overrides = {
-		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
-	}
+# 	class Media:
+# 		js = ('expenses/js/calculate_total.js', 'expenses/js/decimal_thousands.js',)
 
-	class Media:
-		js = ('expenses/js/calculate_total.js', 'expenses/js/decimal_thousands.js',)
+# ----------------------------------------------------------------------
 
 # --- Inlines: Expenses ichida ko'rinadigan qismlar ---
 
