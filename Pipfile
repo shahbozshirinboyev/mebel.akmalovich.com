@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 waitress = "*"
+python-dotenv = "*"
+whitenoise = "*"
 
 [dev-packages]
 
