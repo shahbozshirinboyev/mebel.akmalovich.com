@@ -16,16 +16,22 @@ class UserAdmin(DjangoUserAdmin):
 
     # Edit (change) sahifadagi inputlar ketma-ketligi
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email', 'phone_number')}),
-        ('Permissions', {'fields': ('is_worker', 'is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+        ('Логин и пароль', {'fields': ('username', 'password')}),
+        ('Личная информация', {'fields': ('first_name', 'last_name', 'phone_number')}),
+        ('Права доступа', {'fields': ('is_worker', 'is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
+        ('Системные даты', {'fields': ('last_login', 'date_joined')}),
     )
 
     # Yangi user qo'shish formidagi inputlar ketma-ketligi
     add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('first_name', 'last_name', 'username', 'password1', 'password2', 'phone_number', 'is_worker', 'is_staff', 'is_active', 'user_permissions'),
-        }),
+        ('Логин и пароль', {
+        'classes': ('wide',),
+        'fields': ('username', 'password1', 'password2')
+    }),
+    ('Личная информация', {
+        'fields': ('first_name', 'last_name', 'phone_number')
+    }),
+    ('Права доступа', {
+        'fields': ('is_worker', 'is_staff', 'is_active')
+    }),
     )

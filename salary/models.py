@@ -5,15 +5,13 @@ import uuid
 
 class Employee(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-	user = models.OneToOneField(
-		settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="employee"
-	)
-	full_name = models.CharField(max_length=255)
-	phone_number = models.CharField(max_length=20, blank=True, null=True)
-	position = models.CharField(max_length=100, blank=True)
-	salary_type = models.CharField(max_length=50, blank=True)
-	base_salary = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
-	created_at = models.DateTimeField(auto_now_add=True)
+	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="employee", verbose_name="Имя пользователя")
+	full_name = models.CharField(max_length=255, verbose_name="Имя и Фамилия")
+	phone_number = models.CharField(max_length=20, blank=True, null=True, verbose_name="Номер телефона")
+	position = models.CharField(max_length=100, blank=True, verbose_name="Должность")
+	salary_type = models.CharField(max_length=50, blank=True, verbose_name="Тип зарплаты")
+	base_salary = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True, verbose_name="Базовая зарплата")
+	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
 	class Meta:
 		verbose_name = "Работник"
@@ -39,7 +37,7 @@ class Salary(models.Model):
 		unique_together = ("employee", "date")
 
 	def __str__(self):
-		return f"Salary({self.employee}, {self.date})"
+		return f"Зарплата - {self.date}"
 
 
 class SalaryItem(models.Model):
