@@ -67,7 +67,7 @@ class EmployeeAdmin(admin.ModelAdmin):
 
 @admin.register(SalaryItem)
 class SalaryItemAdmin(admin.ModelAdmin):
-	list_display = ("salary", "employee", "earned_amount", "paid_amount", "created_at")
+	list_display = ("salary", "employee", "earned_amount", "earned_note", "paid_amount", "paid_note", "created_at")
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},

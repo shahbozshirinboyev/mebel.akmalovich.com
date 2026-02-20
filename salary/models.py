@@ -42,13 +42,13 @@ class Salary(models.Model):
 
 class SalaryItem(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-	salary = models.ForeignKey("Salary", on_delete=models.CASCADE, related_name="salary_items")
-	employee = models.ForeignKey("Employee", on_delete=models.CASCADE, related_name="salary_items")
-	earned_amount = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
-	earned_note = models.CharField(max_length=255, blank=True, null=True)
-	paid_amount = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
-	paid_note = models.CharField(max_length=255, blank=True, null=True)
-	created_at = models.DateTimeField(auto_now_add=True)
+	salary = models.ForeignKey("Salary", on_delete=models.CASCADE, related_name="salary_items", verbose_name="Зарплата")
+	employee = models.ForeignKey("Employee", on_delete=models.CASCADE, related_name="salary_items", verbose_name="Работник")
+	earned_amount = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True, verbose_name="Заработанная сумма")
+	earned_note = models.CharField(max_length=255, blank=True, null=True, verbose_name="Примечание заработанной суммы")
+	paid_amount = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True, verbose_name="Выплаченная сумма")
+	paid_note = models.CharField(max_length=255, blank=True, null=True, verbose_name="Примечание выплаченной суммы")
+	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
 	class Meta:
 		verbose_name = "Элемент зарплаты"
@@ -56,4 +56,4 @@ class SalaryItem(models.Model):
 		ordering = ["-salary__date", "created_at"]
 
 	def __str__(self):
-		return f"SalaryItem({self.employee}, {self.earned_amount}, {self.paid_amount})"
+		return f"{self.employee}"
