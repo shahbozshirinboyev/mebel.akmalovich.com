@@ -35,3 +35,8 @@ class UserAdmin(DjangoUserAdmin):
         'fields': ('is_worker', 'is_staff', 'is_active')
     }),
     )
+
+    def response_add(self, request, obj, post_url_continue=None):
+        from django.urls import reverse
+        from django.http import HttpResponseRedirect
+        return HttpResponseRedirect(reverse('admin:users_user_changelist'))
