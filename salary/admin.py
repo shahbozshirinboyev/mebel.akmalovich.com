@@ -79,12 +79,18 @@ class SalaryItemAdmin(admin.ModelAdmin):
 
 @admin.register(Salary)
 class SalaryAdmin(admin.ModelAdmin):
-	list_display = ("employee", "date", "total_earned_salary", "total_paid_salary", "created_at")
+	list_display = ("date", "created_by", "total_earned_salary", "total_paid_salary", "created_at")
 	inlines = [SalaryItemInline]
+	exclude = ("created_by",)
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
 	}
+
+	def save_model(self, request, obj, form, change):
+		if not obj.pk:  # Only set created_by on creation
+			obj.created_by = request.user
+		super().save_model(request, obj, form, change)
 
 	class Media:
 		js = ("salary/js/decimal_thousands.js",)

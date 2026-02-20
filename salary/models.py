@@ -24,17 +24,17 @@ class Employee(models.Model):
 
 class Salary(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-	employee = models.ForeignKey("Employee", on_delete=models.CASCADE, related_name="salaries")
-	date = models.DateField(unique=True)
-	total_earned_salary = models.DecimalField(max_digits=20, decimal_places=2, default=0)
-	total_paid_salary = models.DecimalField(max_digits=20, decimal_places=2, default=0)
-	created_at = models.DateTimeField(auto_now_add=True)
+	created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Создал")
+	date = models.DateField(unique=True, verbose_name="Дата")
+	total_earned_salary = models.DecimalField(max_digits=20, decimal_places=2, default=0, verbose_name="Общая заработанная зарплата")
+	total_paid_salary = models.DecimalField(max_digits=20, decimal_places=2, default=0, verbose_name="Общая выплаченная зарплата")
+	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
 	class Meta:
 		verbose_name = "Зарплата"
 		verbose_name_plural = "Зарплаты"
 		ordering = ["-date", "-created_at"]
-		unique_together = ("employee", "date")
+		unique_together = ("created_by", "date")
 
 	def __str__(self):
 		return f"Зарплата - {self.date}"
