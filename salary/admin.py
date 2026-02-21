@@ -11,7 +11,7 @@ User = get_user_model()
 
 class SalaryItemInline(admin.TabularInline):
 	model = SalaryItem
-	extra = 1
+	extra = 0
 	fields = ('employee', 'earned_amount', 'earned_note', 'paid_amount', 'paid_note')
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
