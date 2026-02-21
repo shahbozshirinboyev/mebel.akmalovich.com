@@ -85,6 +85,18 @@ class SaleItemAdmin(admin.ModelAdmin):
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
 	}
 
+	def save_model(self, request, obj, form, change):
+		super().save_model(request, obj, form, change)
+		
+		# SaleItem saqlangandan keyin tegishli Sale ning total_price ni yangilash
+		if obj.sale:
+			total_sum = obj.sale.sotuvlar.aggregate(
+				total=models.Sum('total')
+			)['total'] or 0
+			if obj.sale.total_price != total_sum:
+				obj.sale.total_price = total_sum
+				obj.sale.save(update_fields=['total_price'])
+
 	class Media:
 		js = ('sales/js/calculate_total.js', 'sales/js/decimal_thousands.js',)
 
