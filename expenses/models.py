@@ -12,8 +12,8 @@ class FoodProducts(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Oziq-ovqat"
-        verbose_name_plural = "Oziq-ovqatlar"
+        verbose_name = "Oziq-ovqat "
+        verbose_name_plural = "Oziq-ovqatlar "
         ordering = ["-created_at"]
 
     def __str__(self):
@@ -26,8 +26,8 @@ class RawMaterials(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Xom-ashyo"
-        verbose_name_plural = "Xom-ashyolar"
+        verbose_name = "Xom-ashyo "
+        verbose_name_plural = "Xom-ashyolar "
         ordering = ["-created_at"]
 
     def __str__(self):
@@ -67,8 +67,8 @@ class Expenses(models.Model):
         return sum(item.total_item_price for item in self.raw_items.all())
 
     class Meta:
-        verbose_name = "Xarajat"
-        verbose_name_plural = "Xarajatlar"
+        verbose_name = "Xarajat "
+        verbose_name_plural = "Xarajatlar "
 
     def __str__(self):
         return f"Expense - {self.date}"
