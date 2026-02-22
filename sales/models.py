@@ -11,8 +11,8 @@ class Buyer(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
-		verbose_name = "Buyer"
-		verbose_name_plural = "Buyers"
+		verbose_name = "Xaridor "
+		verbose_name_plural = "Xaridorlar "
 		ordering = ["-created_at"]
 
 	def __str__(self):
@@ -26,8 +26,8 @@ class Product(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
-		verbose_name = "Product"
-		verbose_name_plural = "Products"
+		verbose_name = "Mahsulot "
+		verbose_name_plural = "Mahsulotlar "
 		ordering = ["-created_at"]
 
 	def __str__(self):
@@ -53,6 +53,11 @@ class Sale(models.Model):
 		# Total calculation will be handled by SaleAdmin.save_formset
 		super().save(*args, **kwargs)
 
+	class Meta:
+		verbose_name = "Savdo "
+		verbose_name_plural = "Savdolar "
+		ordering = ["-created_at"]
+
 
 class SaleItem(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -65,8 +70,8 @@ class SaleItem(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
-		verbose_name = "Sale Item"
-		verbose_name_plural = "Sale Items"
+		verbose_name = "[ Savdo elementi ] "
+		verbose_name_plural = "[ Savdo elementlari ] "
 
 	def save(self, *args, **kwargs):
 		if self.quantity and self.price:

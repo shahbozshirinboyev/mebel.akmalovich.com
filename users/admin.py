@@ -16,22 +16,22 @@ class UserAdmin(DjangoUserAdmin):
 
     # Edit (change) sahifadagi inputlar ketma-ketligi
     fieldsets = (
-        ('Логин и пароль', {'fields': ('username', 'password')}),
-        ('Личная информация', {'fields': ('first_name', 'last_name', 'phone_number')}),
-        ('Права доступа', {'fields': ('is_worker', 'is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
-        ('Системные даты', {'fields': ('last_login', 'date_joined')}),
+        ('Login va Parol', {'fields': ('username', 'password')}),
+        ('Shaxsiy ma’lumotlar', {'fields': ('first_name', 'last_name', 'phone_number')}),
+        ('Ruxsat darajalari', {'fields': ('is_worker', 'is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
+        ('Harakat vaqtlari', {'fields': ('last_login', 'date_joined')}),
     )
 
     # Yangi user qo'shish formidagi inputlar ketma-ketligi
     add_fieldsets = (
-        ('Логин и пароль', {
+        ('Login va Parol', {
         'classes': ('wide',),
         'fields': ('username', 'password1', 'password2')
     }),
-    ('Личная информация', {
+    ('Shaxsiy ma’lumotlar', {
         'fields': ('first_name', 'last_name', 'phone_number')
     }),
-    ('Права доступа', {
+    ('Ruxsat darajalari', {
         'fields': ('is_worker', 'is_staff', 'is_active')
     }),
     )

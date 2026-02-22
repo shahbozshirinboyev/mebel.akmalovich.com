@@ -14,8 +14,8 @@ class Employee(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
 	class Meta:
-		verbose_name = "Работник"
-		verbose_name_plural = "Работники"
+		verbose_name = "Ishchi "
+		verbose_name_plural = "Ishchilar "
 		ordering = ["created_at"]
 
 	def __str__(self):
@@ -31,8 +31,8 @@ class Salary(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
 	class Meta:
-		verbose_name = "Oylik maosh"
-		verbose_name_plural = "Oylik maoshlar"
+		verbose_name = "Oylik maosh "
+		verbose_name_plural = "Oylik maoshlar "
 		ordering = ["-date", "-created_at"]
 		unique_together = ("created_by", "date")
 
@@ -47,7 +47,7 @@ class Salary(models.Model):
 		total_earned = self.salary_items.aggregate(
 			total=models.Sum('earned_amount')
 		)['total'] or 0
-		
+
 		total_paid = self.salary_items.aggregate(
 			total=models.Sum('paid_amount')
 		)['total'] or 0
@@ -70,8 +70,8 @@ class SalaryItem(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
 	class Meta:
-		verbose_name = "Элемент зарплаты"
-		verbose_name_plural = "Элементы зарплаты"
+		verbose_name = "[ Oylik maosh elementi ] "
+		verbose_name_plural = "[ Oylik maosh elementlari ] "
 		ordering = ["-salary__date", "created_at"]
 		unique_together = ("salary", "employee")
 
@@ -80,7 +80,7 @@ class SalaryItem(models.Model):
 
 	def save(self, *args, **kwargs):
 		super().save(*args, **kwargs)
-		
+
 		# Update the parent Salary's totals after saving SalaryItem
 		if self.salary:
 			self.salary.save()
