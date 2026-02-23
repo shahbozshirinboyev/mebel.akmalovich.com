@@ -11,6 +11,7 @@ class UserAdmin(DjangoUserAdmin):
     list_display = ('username', 'full_name',  'phone_number', 'is_worker', 'is_staff', 'is_active', 'is_superuser', 'last_login', 'date_joined')
     list_filter = ()
     search_fields = ()
+    readonly_fields = ('date_joined',)  
 
     fieldsets = (
         ('Foydalanuvchi nomi va Parol', {'fields': ('username', 'password')}),
