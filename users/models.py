@@ -11,7 +11,21 @@ class User(AbstractUser):
     last_name = models.CharField(_("Familiya"), max_length=150, blank=True)
     email = models.EmailField(_("Email"), blank=True)
     phone_number = models.CharField( _("Telefon raqami"), max_length=20, blank=True, null=True )
-    is_worker = models.BooleanField( _("Ishchi"), default=False, help_text=_("Agar foydalanuvchi ishchi bo‘lsa, belgilang."))
+    is_worker = models.BooleanField( _("Ishchi"), default=False, help_text=_("Agar foydalanuvchi ishchi bo'lsa, belgilang."))
+    date_joined = models.DateTimeField(_("Ro‘yxatdan o‘tgan sana"), auto_now_add=True)
+    
+    # Override AbstractUser fields with Uzbek help text
+    is_staff = models.BooleanField(
+        _("Admin panel"), 
+        default=False, 
+        help_text=_("Agar foydalanuvchi admin panelga kirishi mumkin bo'lsa belgilang.")
+    )
+    
+    is_active = models.BooleanField(
+        _("Faol"), 
+        default=True, 
+        help_text=_("Foydalanuvchi faolmi. O'chirib qo'yilsa, akkaunt o'chirilmaydi, faqat faolsizlantiriladi.")
+    )
 
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
