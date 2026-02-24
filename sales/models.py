@@ -54,12 +54,21 @@ class Sale(models.Model):
 		super().save(*args, **kwargs)
 
 	class Meta:
-		verbose_name = "Savdo "
-		verbose_name_plural = "Savdolar "
+		verbose_name = "Zakaz "
+		verbose_name_plural = "Zakazlar "
 		ordering = ["-created_at"]
 
 
 class SaleItem(models.Model):
+	class PaymentStatus(models.TextChoices):
+		UNPAID = 'unpaid', "Yo'q"
+		PARTIAL = 'partial', "Qisman"
+		PAID = 'paid', "Ha"
+
+	class OrderStatus(models.TextChoices):
+		OPEN = 'open', "Yo'q"
+		CLOSED = 'closed', "Ha"
+
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name="sotuvlar", verbose_name="Savdo")
 	product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="sale_items", verbose_name="Mahsulot")
@@ -67,11 +76,26 @@ class SaleItem(models.Model):
 	price = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True, verbose_name="Narx")
 	total = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True, default=0, verbose_name="Jami")
 	buyer = models.ForeignKey(Buyer, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Xaridor")
+
+	payment_status = models.CharField(
+    max_length=10,
+    choices=PaymentStatus.choices,
+    default=PaymentStatus.UNPAID,
+    verbose_name="To'lov holati"
+		)
+
+	order_status = models.CharField(
+    max_length=10,
+    choices=OrderStatus.choices,
+    default=OrderStatus.OPEN,
+    verbose_name="Zakaz yopilganmi"
+    )
+
 	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
 
 	class Meta:
-		verbose_name = "[ Savdo elementi ] "
-		verbose_name_plural = "[ Savdo elementlari ] "
+		verbose_name = "[ Zakaz elementi ] "
+		verbose_name_plural = "[ Zakaz elementlari ] "
 
 	def save(self, *args, **kwargs):
 		if self.quantity and self.price:

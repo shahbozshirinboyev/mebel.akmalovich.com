@@ -8,7 +8,7 @@ from .models import Buyer, Product, Sale, SaleItem
 class SaleItemInline(admin.TabularInline):
 	model = SaleItem
 	extra = 0
-	fields = ("product", "quantity", "price", "total", "buyer")
+	fields = ("product", "quantity", "price", "total", "buyer", "payment_status", "order_status")
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
@@ -42,16 +42,16 @@ class SaleAdmin(admin.ModelAdmin):
       def save_formset(self, request, form, formset, change):
           instances = formset.save(commit=False)
           deleted_instances = formset.deleted_objects
-          
+
           # O'chirilgan itemlarni saqlash
           for obj in deleted_instances:
               obj.delete()
-          
+
           # Yangi va o'zgartirilgan itemlarni saqlash
           for instance in instances:
               if hasattr(instance, 'sale') and instance.sale:
                   instance.save()
-          
+
           # Saqlangandan keyin total_price ni qayta hisoblash
           obj = form.instance
           total_sum = obj.sotuvlar.aggregate(
@@ -60,7 +60,7 @@ class SaleAdmin(admin.ModelAdmin):
           if obj.total_price != total_sum:
               obj.total_price = total_sum
               obj.save(update_fields=['total_price'])
-          
+
           formset.save_m2m()
 
       # total_price hisoblash
@@ -87,7 +87,7 @@ class SaleItemAdmin(admin.ModelAdmin):
 
 	def save_model(self, request, obj, form, change):
 		super().save_model(request, obj, form, change)
-		
+
 		# SaleItem saqlangandan keyin tegishli Sale ning total_price ni yangilash
 		if obj.sale:
 			total_sum = obj.sale.sotuvlar.aggregate(
