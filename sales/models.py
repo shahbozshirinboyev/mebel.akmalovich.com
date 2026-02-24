@@ -61,13 +61,13 @@ class Sale(models.Model):
 
 class SaleItem(models.Model):
 	class PaymentStatus(models.TextChoices):
-		UNPAID = 'unpaid', "Yo'q"
+		UNPAID = 'unpaid', "To'lanmagan"
 		PARTIAL = 'partial', "Qisman"
-		PAID = 'paid', "Ha"
+		PAID = 'paid', "To'langan"
 
 	class OrderStatus(models.TextChoices):
-		OPEN = 'open', "Yo'q"
-		CLOSED = 'closed', "Ha"
+		OPEN = 'open', "Jarayonda"
+		CLOSED = 'closed', "Yopilgan"
 
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name="sotuvlar", verbose_name="Savdo")
@@ -88,7 +88,7 @@ class SaleItem(models.Model):
     max_length=10,
     choices=OrderStatus.choices,
     default=OrderStatus.OPEN,
-    verbose_name="Zakaz yopilganmi"
+    verbose_name="Zakaz holati"
     )
 
 	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
