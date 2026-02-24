@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db import models
 from django.forms import TextInput, Textarea
 from django.db import models as dj_models
-from .models import Buyer, OpenSaleItem, Product, Sale, SaleItem, UnpaidSaleItem
+from .models import Buyer, Product, Sale, SaleItem
 
 
 class SaleItemInline(admin.TabularInline):
@@ -76,9 +76,29 @@ class SaleAdmin(admin.ModelAdmin):
 
 # ----------------------------------------------------------------------
 
+class SaleItemStatsFilter(admin.SimpleListFilter):
+	title = "Statistika"
+	parameter_name = "stats"
+
+	def lookups(self, request, model_admin):
+		return (
+			("open_orders", "Yopilmagan zakazlar"),
+			("unpaid_orders", "To'lanmagan zakazlar"),
+		)
+
+	def queryset(self, request, queryset):
+		value = self.value()
+		if value == "open_orders":
+			return queryset.filter(order_status=SaleItem.OrderStatus.OPEN)
+		if value == "unpaid_orders":
+			return queryset.exclude(payment_status=SaleItem.PaymentStatus.PAID)
+		return queryset
+
+
 @admin.register(SaleItem)
 class SaleItemAdmin(admin.ModelAdmin):
 	list_display = ("product", "quantity", "price", "total", "buyer", "payment_status", "buyers_paid", "sale", "created_at" )
+	list_filter = (SaleItemStatsFilter, "payment_status", "order_status", "created_at")
 	# readonly_fields = ("total",)
 
 	formfield_overrides = {
@@ -118,51 +138,3 @@ class BuyerAdmin(admin.ModelAdmin):
 	list_display = ("name", "sign", "phone_number", "created_at")
 	list_filter = ()
 	search_fields = ()
-
-
-class BaseSaleItemReportAdmin(admin.ModelAdmin):
-	list_display = (
-		"sale",
-		"buyer",
-		"product",
-		"quantity",
-		"price",
-		"total",
-		"payment_status",
-		"buyers_paid",
-		"order_status",
-		"created_at",
-	)
-	list_select_related = ("sale", "buyer", "product")
-	search_fields = ("buyer__name", "buyer__sign", "product__product_name", "sale__date")
-	ordering = ("-created_at",)
-
-	def has_add_permission(self, request):
-		return False
-
-	def has_delete_permission(self, request, obj=None):
-		return False
-
-
-@admin.register(OpenSaleItem)
-class OpenSaleItemAdmin(BaseSaleItemReportAdmin):
-	"""Admin bo'lim: yopilmagan zakazlar ro'yxati."""
-
-	def get_queryset(self, request):
-		return (
-			super()
-			.get_queryset(request)
-			.filter(order_status=SaleItem.OrderStatus.OPEN)
-		)
-
-
-@admin.register(UnpaidSaleItem)
-class UnpaidSaleItemAdmin(BaseSaleItemReportAdmin):
-	"""Admin bo'lim: to'liq to'lanmagan zakazlar ro'yxati."""
-
-	def get_queryset(self, request):
-		return (
-			super()
-			.get_queryset(request)
-			.exclude(payment_status=SaleItem.PaymentStatus.PAID)
-		)

@@ -17,11 +17,9 @@ class OrderedAdminSite(AdminSite):
         },
         "sales": {
             "Sale": 10,
-            "OpenSaleItem": 20,
-            "UnpaidSaleItem": 30,
-            "Product": 40,
-            "Buyer": 50,
-            "SaleItem": 60,
+            "Product": 20,
+            "Buyer": 30,
+            "SaleItem": 40,
         },
         "expenses": {
             "Expenses": 10,
