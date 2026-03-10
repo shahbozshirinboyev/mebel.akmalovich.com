@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tizimga kirish</title>
+  <style>
+    :root {
+      --bg: #0b1320;
+      --card: #111b2e;
+      --line: #223250;
+      --text: #e6ecff;
+      --muted: #9bb0da;
+      --accent: #37a2ff;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top, #14335f 0%, var(--bg) 52%);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px;
+    }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    p { margin: 0 0 20px; color: var(--muted); }
+    label { display: block; margin-bottom: 6px; font-size: 14px; }
+    input {
+      width: 100%;
+      background: #0c1526;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 12px;
+      margin-bottom: 14px;
+    }
+    .error {
+      border: 1px solid #713434;
+      background: #2a1818;
+      color: #ffb2b2;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      padding: 11px;
+      color: #fff;
+      background: var(--accent);
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Tizimga kirish</h1>
+    <p>Login va parol orqali kiring.</p>
+
+    {% if form.non_field_errors %}
+      <div class="error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <label for="id_username">Login</label>
+      <input id="id_username" name="username" type="text" required autofocus>
+
+      <label for="id_password">Parol</label>
+      <input id="id_password" name="password" type="password" required>
+
+      <button type="submit">Kirish</button>
+    </form>
+  </main>
+</body>
+</html>
