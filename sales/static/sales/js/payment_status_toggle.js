@@ -22,12 +22,12 @@
       buyersPaidInput.closest('.form-row, .field-box, div') ||
       buyersPaidInput;
 
-    buyersPaidInput.disabled = !isPartial;
+    buyersPaidInput.readOnly = !isPartial;
     buyersPaidInput.required = isPartial;
     inputWrapper.style.display = isPartial ? '' : 'none';
 
     if (!isPartial) {
-      buyersPaidInput.value = '';
+      buyersPaidInput.value = '0';
       buyersPaidInput.removeAttribute('min');
       buyersPaidInput.removeAttribute('max');
       return;

@@ -9,6 +9,7 @@ class OrderedAdminSite(AdminSite):
         "salary": 20,
         "sales": 30,
         "expenses": 40,
+        "reports": 50,
     }
 
     model_order = {
@@ -32,6 +33,9 @@ class OrderedAdminSite(AdminSite):
             "Salary": 10,
             "Employee": 20,
             "SalaryItem": 30,
+        },
+        "reports": {
+            "DailyFinanceReport": 10,
         },
     }
 

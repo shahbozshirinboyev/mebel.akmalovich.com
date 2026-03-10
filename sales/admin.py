@@ -1,17 +1,49 @@
 from django.contrib import admin
 from django.db import models
+from django import forms
 from django.forms import TextInput, Textarea
 from django.db import models as dj_models
 from .models import Buyer, Product, Sale, SaleItem
 
 
+class DecimalTextInput(TextInput):
+	"""Accept formatted decimals like '1 200 000,50' on the server side."""
+
+	def value_from_datadict(self, data, files, name):
+		value = super().value_from_datadict(data, files, name)
+		if isinstance(value, str):
+			return value.replace("\xa0", "").replace(" ", "").replace(",", ".")
+		return value
+
+
+class SaleItemAdminForm(forms.ModelForm):
+	class Meta:
+		model = SaleItem
+		fields = "__all__"
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.fields["buyers_paid"].required = False
+
+	def clean(self):
+		cleaned_data = super().clean()
+		payment_status = cleaned_data.get("payment_status")
+		buyers_paid = cleaned_data.get("buyers_paid")
+
+		if payment_status != SaleItem.PaymentStatus.PARTIAL and not buyers_paid:
+			cleaned_data["buyers_paid"] = 0
+
+		return cleaned_data
+
+
 class SaleItemInline(admin.TabularInline):
+	form = SaleItemAdminForm
 	model = SaleItem
 	extra = 0
 	fields = ("product", "quantity", "price", "total", "buyer", "payment_status", "buyers_paid", "order_status")
 
 	formfield_overrides = {
-		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+		dj_models.DecimalField: {'widget': DecimalTextInput(attrs={'class': 'thousand-sep'})},
 	}
 
 @admin.register(Sale)
@@ -22,7 +54,7 @@ class SaleAdmin(admin.ModelAdmin):
       inlines = (SaleItemInline,)
 
       formfield_overrides = {
-		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+		dj_models.DecimalField: {'widget': DecimalTextInput(attrs={'class': 'thousand-sep'})},
         dj_models.TextField: {'widget': Textarea(attrs={'cols': 100, 'rows': 5})},
 	  }
 
@@ -97,12 +129,13 @@ class SaleItemStatsFilter(admin.SimpleListFilter):
 
 @admin.register(SaleItem)
 class SaleItemAdmin(admin.ModelAdmin):
+	form = SaleItemAdminForm
 	list_display = ("product", "quantity", "price", "total", "buyer", "payment_status", "buyers_paid", "sale", "created_at" )
 	list_filter = (SaleItemStatsFilter, "payment_status", "order_status", "created_at")
 	# readonly_fields = ("total",)
 
 	formfield_overrides = {
-		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+		dj_models.DecimalField: {'widget': DecimalTextInput(attrs={'class': 'thousand-sep'})},
 	}
 
 	def save_model(self, request, obj, form, change):
@@ -127,7 +160,7 @@ class ProductAdmin(admin.ModelAdmin):
 	list_display = ("product_name", "measurement_unit", "created_at")
 
 	formfield_overrides = {
-		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+		dj_models.DecimalField: {'widget': DecimalTextInput(attrs={'class': 'thousand-sep'})},
 	}
 
 	class Media:
