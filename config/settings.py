@@ -29,6 +29,7 @@ CSRF_TRUSTED_ORIGINS = ["https://mebel.akmalovich.com", "https://www.mebel.akmal
 # Application definition
 INSTALLED_APPS = [
     'config.admin_apps.CustomAdminConfig',
+    'import_export',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

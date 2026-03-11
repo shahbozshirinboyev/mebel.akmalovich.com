@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.urls import path
 from django.forms import TextInput, Textarea
 from django.db import models as dj_models
+from import_export.admin import ExportMixin
 from .models import Employee, Salary, SalaryItem
 
 User = get_user_model()
@@ -19,7 +20,7 @@ class SalaryItemInline(admin.TabularInline):
 
 
 @admin.register(Employee)
-class EmployeeAdmin(admin.ModelAdmin):
+class EmployeeAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("full_name", "user", "phone_number", "position", "salary_type", "base_salary", "created_at")
 
 	formfield_overrides = {
@@ -66,7 +67,7 @@ class EmployeeAdmin(admin.ModelAdmin):
 
 
 @admin.register(SalaryItem)
-class SalaryItemAdmin(admin.ModelAdmin):
+class SalaryItemAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("salary", "employee", "earned_amount", "earned_note", "paid_amount", "paid_note", "created_at")
 
 	formfield_overrides = {
@@ -78,7 +79,7 @@ class SalaryItemAdmin(admin.ModelAdmin):
 
 
 @admin.register(Salary)
-class SalaryAdmin(admin.ModelAdmin):
+class SalaryAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("date", "created_by", "total_earned_salary", "total_paid_salary", "created_at")
 	inlines = [SalaryItemInline]
 	exclude = ("created_by",)

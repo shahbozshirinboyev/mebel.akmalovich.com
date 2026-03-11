@@ -9,6 +9,8 @@ python-dotenv = "*"
 whitenoise = "*"
 psycopg = {extras = ["binary"], version = "*"}
 django = "*"
+django-import-export = "*"
+openpyxl = "*"
 
 [dev-packages]
 
