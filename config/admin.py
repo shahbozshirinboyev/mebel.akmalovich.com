@@ -30,8 +30,8 @@ class OrderedAdminSite(AdminSite):
             "RawItem": 50,
         },
         "salary": {
-            "Salary": 10,
-            "Employee": 20,
+            "Employee": 10,
+            "Salary": 20,
             "SalaryItem": 30,
         },
         "reports": {
