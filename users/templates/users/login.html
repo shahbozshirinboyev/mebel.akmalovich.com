@@ -1,90 +1,179 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="uz" class="h-full overflow-x-hidden">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tizimga kirish</title>
-  <style>
-    :root {
-      --bg: #0b1320;
-      --card: #111b2e;
-      --line: #223250;
-      --text: #e6ecff;
-      --muted: #9bb0da;
-      --accent: #37a2ff;
-      --danger: #ff6b6b;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Segoe UI", sans-serif;
-      color: var(--text);
-      background: radial-gradient(circle at top, #14335f 0%, var(--bg) 52%);
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
-    .card {
-      width: 100%;
-      max-width: 420px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 24px;
-    }
-    h1 { margin: 0 0 8px; font-size: 24px; }
-    p { margin: 0 0 20px; color: var(--muted); }
-    label { display: block; margin-bottom: 6px; font-size: 14px; }
-    input {
-      width: 100%;
-      background: #0c1526;
-      color: var(--text);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 11px 12px;
-      margin-bottom: 14px;
-    }
-    .error {
-      border: 1px solid #713434;
-      background: #2a1818;
-      color: #ffb2b2;
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-      font-size: 14px;
-    }
-    button {
-      width: 100%;
-      border: 0;
-      border-radius: 8px;
-      padding: 11px;
-      color: #fff;
-      background: var(--accent);
-      font-weight: 600;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Plus Jakarta Sans", "sans-serif"],
+          },
+          boxShadow: {
+            soft: "0 20px 60px -30px rgba(15, 23, 42, 0.35)",
+          },
+        },
+      },
+    };
+  </script>
 </head>
-<body>
-  <main class="card">
-    <h1>Tizimga kirish</h1>
-    <p>Login va parol orqali kiring.</p>
+<body class="relative m-0 min-h-screen overflow-x-hidden bg-slate-100 font-sans text-slate-900">
+  <div class="pointer-events-none absolute -left-20 -top-28 h-72 w-72 rounded-full bg-blue-200/70 blur-3xl"></div>
+  <div class="pointer-events-none absolute -right-16 top-1/3 h-80 w-80 rounded-full bg-cyan-200/60 blur-3xl"></div>
+  <div class="pointer-events-none absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-slate-200/80 blur-3xl"></div>
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.18)_1px,transparent_0)] bg-[length:26px_26px]"></div>
 
-    {% if form.non_field_errors %}
-      <div class="error">{{ form.non_field_errors }}</div>
-    {% endif %}
+  <main class="relative mx-auto flex min-h-screen w-full max-w-[1100px] items-center justify-center px-4 py-10">
+    <section class="w-full max-w-md rounded-3xl border border-white/70 bg-white/85 p-6 shadow-soft backdrop-blur-xl sm:p-8">
+      <div class="mb-6">
+        <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Tizimga kirish</h1>
+        <p class="mt-2 text-sm text-slate-600">Hisobingizga kirish uchun login va parolni kiriting.</p>
+      </div>
 
-    <form method="post">
-      {% csrf_token %}
-      <label for="id_username">Login</label>
-      <input id="id_username" name="username" type="text" required autofocus>
+      {% if form.non_field_errors %}
+        <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
 
-      <label for="id_password">Parol</label>
-      <input id="id_password" name="password" type="password" required>
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+          <label for="id_username" class="mb-1.5 block text-sm font-medium text-slate-700">Login</label>
+          <input
+            id="id_username"
+            name="username"
+            type="text"
+            value="{{ form.username.value|default_if_none:'' }}"
+            required
+            autofocus
+            class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+            placeholder="Loginni kiriting"
+          >
+          {% if form.username.errors %}
+            <p class="mt-1 text-xs text-rose-600">{{ form.username.errors|striptags }}</p>
+          {% endif %}
+        </div>
 
-      <button type="submit">Kirish</button>
-    </form>
+        <div>
+          <label for="id_password" class="mb-1.5 block text-sm font-medium text-slate-700">Parol</label>
+          <input
+            id="id_password"
+            name="password"
+            type="password"
+            required
+            class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+            placeholder="Parolni kiriting"
+          >
+          {% if form.password.errors %}
+            <p class="mt-1 text-xs text-rose-600">{{ form.password.errors|striptags }}</p>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="w-full rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/25 transition hover:from-blue-700 hover:to-cyan-600 focus:outline-none focus:ring-4 focus:ring-blue-200">
+          Kirish
+        </button>
+      </form>
+    </section>
   </main>
+
+  <div id="global-loader" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-900/40 p-4 backdrop-blur-[2px]">
+    <div class="rounded-xl border border-slate-200 bg-white px-6 py-5 shadow-2xl">
+      <div class="flex items-center gap-3">
+        <span class="h-5 w-5 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600"></span>
+        <p class="text-sm font-medium text-slate-700">Yuklanmoqda...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MIN_LOADER_MS = 1000;
+    let navigationInProgress = false;
+    const globalLoader = document.getElementById('global-loader');
+
+    const showGlobalLoader = function () {
+      if (!globalLoader) {
+        return;
+      }
+      globalLoader.classList.remove('hidden');
+      globalLoader.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    };
+
+    const runWithLoader = function (callback) {
+      if (navigationInProgress) {
+        return;
+      }
+      navigationInProgress = true;
+      showGlobalLoader();
+      window.setTimeout(callback, MIN_LOADER_MS);
+    };
+
+    document.querySelectorAll('form').forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (navigationInProgress || form.dataset.noLoader === 'true') {
+          if (navigationInProgress) {
+            event.preventDefault();
+          }
+          return;
+        }
+
+        event.preventDefault();
+        const submitter = event.submitter;
+        if (submitter) {
+          submitter.disabled = true;
+          submitter.classList.add('opacity-70', 'cursor-not-allowed');
+        }
+
+        runWithLoader(function () {
+          form.submit();
+        });
+      });
+    });
+
+    document.querySelectorAll('a[href]').forEach(function (link) {
+      link.addEventListener('click', function (event) {
+        if (navigationInProgress || link.dataset.noLoader === 'true') {
+          if (navigationInProgress) {
+            event.preventDefault();
+          }
+          return;
+        }
+        if (event.defaultPrevented) {
+          return;
+        }
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+        if (link.target && link.target.toLowerCase() !== '_self') {
+          return;
+        }
+        if (link.hasAttribute('download')) {
+          return;
+        }
+
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('javascript:')) {
+          return;
+        }
+
+        const nextUrl = new URL(link.href, window.location.href);
+        if (nextUrl.origin !== window.location.origin) {
+          return;
+        }
+
+        event.preventDefault();
+        runWithLoader(function () {
+          window.location.href = nextUrl.href;
+        });
+      });
+    });
+  </script>
 </body>
 </html>

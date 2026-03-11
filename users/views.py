@@ -123,6 +123,7 @@ class WorkerDashboardView(LoginRequiredMixin, View):
 			"base_salary": employee.base_salary or zero,
 			"total_earned": totals["total_earned"] or zero,
 			"total_paid": totals["total_paid"] or zero,
+			"balance": (employee.base_salary or zero) + (totals["total_earned"] or zero) - (totals["total_paid"] or zero),
 			"daily_rows": daily_rows,
 			"selected_year": selected_year,
 			"selected_month": selected_month,
