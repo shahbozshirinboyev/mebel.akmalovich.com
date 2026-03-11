@@ -67,7 +67,7 @@ class SalaryItem(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
 
 	class Meta:
-		verbose_name = "Ishch ish haqi "
+		verbose_name = "Ishchi ish haqi "
 		verbose_name_plural = "Ishchilar ish haqi "
 		ordering = ["-salary__date", "created_at"]
 		unique_together = ("salary", "employee")
