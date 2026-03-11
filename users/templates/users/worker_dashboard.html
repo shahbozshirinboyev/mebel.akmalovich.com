@@ -1,26 +1,41 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="uz" class="h-full bg-[#eef4ff]">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mening hisobim</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="m-0 overflow-x-hidden bg-gradient-to-b from-[#eef4ff] to-[#f3f6fb] font-sans text-[#122039]">
+<body class="m-0 min-h-screen overflow-x-hidden bg-[#eef4ff] font-sans text-[#122039]">
   {% load l10n %}
   <div class="mx-auto w-full max-w-[980px] px-2.5 pb-5 pt-3.5 md:px-4 md:pb-8 md:pt-6">
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
       <div class="min-w-0">
-        <h1 class="m-0 text-xl font-semibold">Mening hisobim</h1>
         <p class="mt-1 min-w-0">
-          <span class="inline-flex max-w-full items-center rounded-xl bg-green-50 px-2 py-1 text-sm font-medium text-green-700 inset-ring inset-ring-green-600/20 break-words whitespace-normal">
-            {% if employee and employee.full_name %}
-              {{ employee.full_name }}
-            {% elif request.user.get_full_name %}
-              {{ request.user.get_full_name }}
-            {% else %}
-              {{ request.user.username }}
-            {% endif %}
+          <span class="inline-flex max-w-full items-center gap-2 rounded-xl border border-slate-200 bg-white/90 px-2.5 py-1.5 shadow-sm ring-1 ring-sky-100">
+            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-sm">
+              <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path d="M10 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 1 1 14 0H3Z"></path>
+              </svg>
+            </span>
+            <span class="min-w-0">
+              <span class="block text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                {% if employee and employee.position %}
+                  {{ employee.position }}
+                {% else %}
+                  Ishchi
+                {% endif %}
+              </span>
+              <span class="block break-words whitespace-normal text-sm font-semibold leading-tight text-slate-700">
+                {% if employee and employee.full_name %}
+                  {{ employee.full_name }}
+                {% elif request.user.get_full_name %}
+                  {{ request.user.get_full_name }}
+                {% else %}
+                  {{ request.user.username }}
+                {% endif %}
+              </span>
+            </span>
           </span>
         </p>
       </div>
@@ -63,7 +78,7 @@
             </svg>
           </div>
         </div>
-        <button id="filter-submit" class="w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-200" type="submit">
+        <button id="filter-submit" class="w-full rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-sky-600 hover:to-cyan-600 focus:outline-none focus:ring-4 focus:ring-sky-200" type="submit">
           Ko'rish
         </button>
       </form>
