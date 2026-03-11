@@ -20,17 +20,22 @@ class WorkerLoginView(LoginView):
 	def dispatch(self, request, *args, **kwargs):
 		# Worker foydalanuvchi authenticated bo'lsa darhol kabinetga yuboramiz.
 		# Admin authenticated bo'lsa login sahifasini o'zini ko'rsatamiz.
-		if request.user.is_authenticated and not request.user.is_staff:
+		if request.user.is_authenticated and getattr(request.user, "is_worker", False):
 			return redirect("worker_dashboard")
 		return super().dispatch(request, *args, **kwargs)
+
+	def form_valid(self, form):
+		user = form.get_user()
+		if not getattr(user, "is_worker", False):
+			form.add_error(None, "Siz ishchi emassiz.")
+			return self.form_invalid(form)
+		return super().form_valid(form)
 
 	def get_success_url(self):
 		redirect_to = self.get_redirect_url()
 		if redirect_to:
 			return redirect_to
 
-		if self.request.user.is_staff:
-			return reverse_lazy("admin:index")
 		return reverse_lazy("worker_dashboard")
 
 
@@ -45,8 +50,9 @@ class WorkerDashboardView(LoginRequiredMixin, View):
 			return default
 
 	def get(self, request):
-		if request.user.is_staff and not getattr(request.user, "is_worker", False):
-			return redirect("admin:index")
+		if not getattr(request.user, "is_worker", False):
+			logout(request)
+			return redirect("login")
 
 		today = timezone.localdate()
 		current_year = today.year
