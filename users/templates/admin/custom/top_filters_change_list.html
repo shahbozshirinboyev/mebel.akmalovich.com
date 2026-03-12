@@ -1,0 +1,103 @@
+{% extends "admin/change_list.html" %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <style>
+    #changelist.filtered #changelist-form {
+      margin-right: 0;
+    }
+    .admin-top-filters {
+      margin: 12px 0 16px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--body-bg);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 12px;
+      align-items: end;
+    }
+    .admin-top-filters .item {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .admin-top-filters .item label {
+      margin: 0;
+      font-size: 12px;
+      color: var(--body-quiet-color);
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .admin-top-filters .item select {
+      min-width: 130px;
+      max-width: 320px;
+      width: auto;
+      box-sizing: border-box;
+    }
+    .admin-top-filters .hint {
+      margin-left: auto;
+      align-self: center;
+      font-size: 11px;
+      color: var(--body-quiet-color);
+      white-space: nowrap;
+    }
+    @media (max-width: 900px) {
+      .admin-top-filters .item,
+      .admin-top-filters .item select {
+        width: 100%;
+        max-width: none;
+      }
+      .admin-top-filters .hint {
+        width: 100%;
+        margin-left: 0;
+      }
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const selects = document.querySelectorAll(".js-admin-top-filter");
+
+      const fitSelectWidth = function (selectEl) {
+        const selectedOption = selectEl.options[selectEl.selectedIndex];
+        const labelLength = selectedOption ? selectedOption.text.length : 10;
+        const widthCh = Math.max(14, Math.min(labelLength + 7, 34));
+        selectEl.style.width = widthCh + "ch";
+      };
+
+      selects.forEach(function (selectEl) {
+        fitSelectWidth(selectEl);
+        selectEl.addEventListener("change", function () {
+          const targetUrl = selectEl.value;
+          if (targetUrl) {
+            window.location.href = targetUrl;
+          }
+        });
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block search %}
+  {{ block.super }}
+  {% if top_filter_specs %}
+    <div class="admin-top-filters">
+      {% for spec in top_filter_specs %}
+        <div class="item">
+          <label for="filter-{{ forloop.counter }}">{{ spec.title }}</label>
+          <select id="filter-{{ forloop.counter }}" class="js-admin-top-filter">
+            {% for choice in spec.choices %}
+              <option value="{{ choice.url }}" {% if choice.selected %}selected{% endif %}>
+                {{ choice.display }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endfor %}
+      <div class="hint">Tanlaganingizda avtomatik filter qo'llanadi</div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block filters %}{% endblock %}

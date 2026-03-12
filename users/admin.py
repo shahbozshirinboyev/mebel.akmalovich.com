@@ -2,13 +2,14 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from import_export.admin import ExportMixin
+from config.admin_mixins import TopDropdownFiltersMixin
 from .models import User
 
 
 admin.site.unregister(Group)
 
 @admin.register(User)
-class UserAdmin(ExportMixin, DjangoUserAdmin):
+class UserAdmin(TopDropdownFiltersMixin, ExportMixin, DjangoUserAdmin):
     list_display = ('username', 'full_name',  'phone_number', 'is_worker', 'is_staff', 'is_active', 'is_superuser', 'last_login', 'date_joined')
     list_filter = ()
     search_fields = ()

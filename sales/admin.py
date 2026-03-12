@@ -4,6 +4,7 @@ from django import forms
 from django.forms import TextInput, Textarea
 from django.db import models as dj_models
 from import_export.admin import ExportMixin
+from config.admin_mixins import TopDropdownFiltersMixin
 from .models import Buyer, Product, Sale, SaleItem
 
 
@@ -48,7 +49,7 @@ class SaleItemInline(admin.TabularInline):
 	}
 
 @admin.register(Sale)
-class SaleAdmin(ExportMixin, admin.ModelAdmin):
+class SaleAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
       list_display = ("date", "created_by", "total_price", "description", "created_at")
       list_filter = ()
       search_fields = ()
@@ -129,7 +130,7 @@ class SaleItemStatsFilter(admin.SimpleListFilter):
 
 
 @admin.register(SaleItem)
-class SaleItemAdmin(ExportMixin, admin.ModelAdmin):
+class SaleItemAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
 	form = SaleItemAdminForm
 	list_display = ("product", "quantity", "price", "total", "buyer", "payment_status", "buyers_paid", "sale", "created_at" )
 	list_filter = (SaleItemStatsFilter, "payment_status", "order_status", "created_at")
@@ -157,7 +158,7 @@ class SaleItemAdmin(ExportMixin, admin.ModelAdmin):
 # ----------------------------------------------------------------------
 
 @admin.register(Product)
-class ProductAdmin(ExportMixin, admin.ModelAdmin):
+class ProductAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
 	list_display = ("product_name", "measurement_unit", "created_at")
 
 	formfield_overrides = {
@@ -168,7 +169,7 @@ class ProductAdmin(ExportMixin, admin.ModelAdmin):
 		js = ('sales/js/decimal_thousands.js',)
 
 @admin.register(Buyer)
-class BuyerAdmin(ExportMixin, admin.ModelAdmin):
+class BuyerAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
 	list_display = ("name", "sign", "phone_number", "created_at")
 	list_filter = ()
 	search_fields = ()

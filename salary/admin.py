@@ -5,6 +5,7 @@ from django.urls import path
 from django.forms import TextInput, Textarea
 from django.db import models as dj_models
 from import_export.admin import ExportMixin
+from config.admin_mixins import TopDropdownFiltersMixin
 from .models import Employee, Salary, SalaryItem
 
 User = get_user_model()
@@ -67,8 +68,9 @@ class SalaryItemMonthFilter(admin.SimpleListFilter):
 
 
 @admin.register(Employee)
-class EmployeeAdmin(ExportMixin, admin.ModelAdmin):
+class EmployeeAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
 	list_display = ("full_name", "user", "phone_number", "position", "salary_type", "base_salary", "created_at")
+	list_filter = ("position", "salary_type")
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
@@ -114,7 +116,7 @@ class EmployeeAdmin(ExportMixin, admin.ModelAdmin):
 
 
 @admin.register(SalaryItem)
-class SalaryItemAdmin(ExportMixin, admin.ModelAdmin):
+class SalaryItemAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
 	list_display = ("salary", "employee", "earned_amount", "earned_note", "paid_amount", "paid_note", "created_at")
 	list_filter = ("employee", SalaryItemYearFilter, SalaryItemMonthFilter)
 
@@ -127,7 +129,7 @@ class SalaryItemAdmin(ExportMixin, admin.ModelAdmin):
 
 
 @admin.register(Salary)
-class SalaryAdmin(ExportMixin, admin.ModelAdmin):
+class SalaryAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
 	list_display = ("date", "created_by", "total_earned_salary", "total_paid_salary", "created_at")
 	inlines = [SalaryItemInline]
 	exclude = ("created_by",)
@@ -139,16 +141,16 @@ class SalaryAdmin(ExportMixin, admin.ModelAdmin):
 	def save_formset(self, request, form, formset, change):
 		instances = formset.save(commit=False)
 		deleted_instances = formset.deleted_objects
-		
+
 		# O'chirilgan itemlarni saqlash
 		for obj in deleted_instances:
 			obj.delete()
-		
+
 		# Yangi va o'zgartirilgan itemlarni saqlash
 		for instance in instances:
 			if hasattr(instance, 'salary') and instance.salary:
 				instance.save()
-		
+
 		# Saqlangandan keyin total larni qayta hisoblash
 		if form.instance and hasattr(form.instance, 'salary_items'):
 			total_earned = sum(item.earned_amount or 0 for item in form.instance.salary_items.all())
@@ -156,7 +158,7 @@ class SalaryAdmin(ExportMixin, admin.ModelAdmin):
 			form.instance.total_earned_salary = total_earned
 			form.instance.total_paid_salary = total_paid
 			form.instance.save(update_fields=['total_earned_salary', 'total_paid_salary'])
-		
+
 		formset.save_m2m()
 
 	def save_model(self, request, obj, form, change):
