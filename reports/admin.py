@@ -1,6 +1,5 @@
 from django.contrib import admin
 from import_export.admin import ExportMixin
-from config.admin_mixins import TopDropdownFiltersMixin
 
 from .models import DailyFinanceReport
 
@@ -53,7 +52,7 @@ class ReportMonthFilter(admin.SimpleListFilter):
 
 
 @admin.register(DailyFinanceReport)
-class DailyFinanceReportAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
+class DailyFinanceReportAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = (
 		"date",
 		"total_closed_sales",

@@ -3,23 +3,22 @@ from django.db import models as dj_models
 from django.forms import TextInput, Textarea
 from django.utils.formats import number_format
 from import_export.admin import ExportMixin
-from config.admin_mixins import TopDropdownFiltersMixin
 from .models import FoodProducts, RawMaterials, Expenses, FoodItem, RawItem
 
 # Mahsulotlar va xomashyolarni oddiy ro'yxat sifatida ro'yxatdan o'tkazamiz
 @admin.register(FoodProducts)
-class FoodProductsAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
+class FoodProductsAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('food_product_name', 'measurement_unit', 'created_at')
     # search_fields = ('food_product_name',)
 
 @admin.register(RawMaterials)
-class RawMaterialsAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
+class RawMaterialsAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('raw_material_name', 'measurement_unit', 'created_at')
     # search_fields = ('raw_material_name',)
 
 # ----------------------------------------------------------------------
 @admin.register(FoodItem)
-class FoodItemAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
+class FoodItemAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("food_product", "quantity", "price", "total_item_price", "expense", "created_at" )
 	readonly_fields = ("total_item_price",)
 
@@ -38,7 +37,7 @@ class FoodItemAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
 		js = ('expenses/js/calculate_total.js', 'expenses/js/decimal_thousands.js',)
 
 @admin.register(RawItem)
-class RawItemAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
+class RawItemAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("raw_material", "quantity", "price", "total_item_price", "expense", "created_at" )
 	readonly_fields = ("total_item_price",)
 
@@ -96,7 +95,7 @@ class RawItemInline(admin.TabularInline):
 # --- Expenses Admin ---
 
 @admin.register(Expenses)
-class ExpensesAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
+class ExpensesAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('date', 'created_by', 'total_cost', 'description', 'created_at')
     # list_filter = ('date', 'created_by')
     # search_fields = ('description',)

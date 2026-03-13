@@ -5,7 +5,6 @@ from django.urls import path
 from django.forms import TextInput, Textarea
 from django.db import models as dj_models
 from import_export.admin import ExportMixin
-from config.admin_mixins import TopDropdownFiltersMixin
 from .models import Employee, Salary, SalaryItem
 
 User = get_user_model()
@@ -68,7 +67,7 @@ class SalaryItemMonthFilter(admin.SimpleListFilter):
 
 
 @admin.register(Employee)
-class EmployeeAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
+class EmployeeAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("full_name", "user", "phone_number", "position", "salary_type", "base_salary", "created_at")
 	list_filter = ("position", "salary_type")
 
@@ -116,7 +115,7 @@ class EmployeeAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
 
 
 @admin.register(SalaryItem)
-class SalaryItemAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
+class SalaryItemAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("salary", "employee", "earned_amount", "earned_note", "paid_amount", "paid_note", "created_at")
 	list_filter = ("employee", SalaryItemYearFilter, SalaryItemMonthFilter)
 
@@ -129,7 +128,7 @@ class SalaryItemAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
 
 
 @admin.register(Salary)
-class SalaryAdmin(TopDropdownFiltersMixin, ExportMixin, admin.ModelAdmin):
+class SalaryAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("date", "created_by", "total_earned_salary", "total_paid_salary", "created_at")
 	inlines = [SalaryItemInline]
 	exclude = ("created_by",)
