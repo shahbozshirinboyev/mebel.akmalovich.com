@@ -6,10 +6,11 @@ class OrderedAdminSite(AdminSite):
 
     app_order = {
         "users": 10,
-        "salary": 20,
-        "sales": 30,
-        "expenses": 40,
-        "reports": 50,
+        "account": 20,
+        "salary": 30,
+        "sales": 40,
+        "expenses": 50,
+        "reports": 60,
     }
 
     model_order = {
@@ -21,6 +22,10 @@ class OrderedAdminSite(AdminSite):
             "Product": 20,
             "Buyer": 30,
             "SaleItem": 40,
+        },
+        "account": {
+            "Income": 10,
+            "Expense": 20,
         },
         "expenses": {
             "Expenses": 10,

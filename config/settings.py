@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'users',
     'salary',
     'sales',
+    'account.apps.AccountConfig',
     'expenses',
     'reports',
 ]
