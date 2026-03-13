@@ -1,9 +1,34 @@
 from django.contrib import admin
+from django import forms
 from django.db import models as dj_models
 from django.forms import TextInput, Textarea
 from django.utils.formats import number_format
 from import_export.admin import ExportMixin
-from .models import FoodProducts, RawMaterials, Expenses, FoodItem, RawItem
+from .models import ExpensePaymentStatus, FoodProducts, RawMaterials, Expenses, FoodItem, RawItem
+
+
+class ExpenseItemAdminForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["paid_amount"].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get("payment_status") != ExpensePaymentStatus.PARTIAL and not cleaned_data.get("paid_amount"):
+            cleaned_data["paid_amount"] = 0
+        return cleaned_data
+
+
+class FoodItemAdminForm(ExpenseItemAdminForm):
+    class Meta:
+        model = FoodItem
+        fields = "__all__"
+
+
+class RawItemAdminForm(ExpenseItemAdminForm):
+    class Meta:
+        model = RawItem
+        fields = "__all__"
 
 # Mahsulotlar va xomashyolarni oddiy ro'yxat sifatida ro'yxatdan o'tkazamiz
 @admin.register(FoodProducts)
@@ -17,9 +42,105 @@ class RawMaterialsAdmin(ExportMixin, admin.ModelAdmin):
     # search_fields = ('raw_material_name',)
 
 # ----------------------------------------------------------------------
+class FoodItemYearFilter(admin.SimpleListFilter):
+    title = "Yil"
+    parameter_name = "year"
+
+    def lookups(self, request, model_admin):
+        return [(str(year), str(year)) for year in range(2020, 2031)]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        try:
+            return queryset.filter(expense__date__year=int(value))
+        except (TypeError, ValueError):
+            return queryset
+
+
+class FoodItemMonthFilter(admin.SimpleListFilter):
+    title = "Oy"
+    parameter_name = "month"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("1", "Yanvar"),
+            ("2", "Fevral"),
+            ("3", "Mart"),
+            ("4", "Aprel"),
+            ("5", "May"),
+            ("6", "Iyun"),
+            ("7", "Iyul"),
+            ("8", "Avgust"),
+            ("9", "Sentabr"),
+            ("10", "Oktabr"),
+            ("11", "Noyabr"),
+            ("12", "Dekabr"),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        try:
+            return queryset.filter(expense__date__month=int(value))
+        except (TypeError, ValueError):
+            return queryset
+
+
+class RawItemYearFilter(admin.SimpleListFilter):
+    title = "Yil"
+    parameter_name = "year"
+
+    def lookups(self, request, model_admin):
+        return [(str(year), str(year)) for year in range(2020, 2031)]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        try:
+            return queryset.filter(expense__date__year=int(value))
+        except (TypeError, ValueError):
+            return queryset
+
+
+class RawItemMonthFilter(admin.SimpleListFilter):
+    title = "Oy"
+    parameter_name = "month"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("1", "Yanvar"),
+            ("2", "Fevral"),
+            ("3", "Mart"),
+            ("4", "Aprel"),
+            ("5", "May"),
+            ("6", "Iyun"),
+            ("7", "Iyul"),
+            ("8", "Avgust"),
+            ("9", "Sentabr"),
+            ("10", "Oktabr"),
+            ("11", "Noyabr"),
+            ("12", "Dekabr"),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        try:
+            return queryset.filter(expense__date__month=int(value))
+        except (TypeError, ValueError):
+            return queryset
+
+
 @admin.register(FoodItem)
 class FoodItemAdmin(ExportMixin, admin.ModelAdmin):
-	list_display = ("food_product", "quantity", "price", "total_item_price", "expense", "created_at" )
+	form = FoodItemAdminForm
+	list_display = ("food_product", "quantity", "price", "total_item_price", "payment_status", "paid_amount", "expense", "created_at" )
+	list_filter = (FoodItemYearFilter, FoodItemMonthFilter, "payment_status")
 	readonly_fields = ("total_item_price",)
 
 	formfield_overrides = {
@@ -34,11 +155,13 @@ class FoodItemAdmin(ExportMixin, admin.ModelAdmin):
 			obj.expense.update_total_cost()
 
 	class Media:
-		js = ('expenses/js/calculate_total.js', 'expenses/js/decimal_thousands.js',)
+		js = ('expenses/js/calculate_total.js', 'expenses/js/payment_status_toggle.js', 'expenses/js/decimal_thousands.js',)
 
 @admin.register(RawItem)
 class RawItemAdmin(ExportMixin, admin.ModelAdmin):
-	list_display = ("raw_material", "quantity", "price", "total_item_price", "expense", "created_at" )
+	form = RawItemAdminForm
+	list_display = ("raw_material", "quantity", "price", "total_item_price", "payment_status", "paid_amount", "expense", "created_at" )
+	list_filter = (RawItemYearFilter, RawItemMonthFilter, "payment_status")
 	readonly_fields = ("total_item_price",)
 
 	formfield_overrides = {
@@ -53,15 +176,16 @@ class RawItemAdmin(ExportMixin, admin.ModelAdmin):
 			obj.expense.update_total_cost()
 
 	class Media:
-		js = ('expenses/js/calculate_total.js', 'expenses/js/decimal_thousands.js',)
+		js = ('expenses/js/calculate_total.js', 'expenses/js/payment_status_toggle.js', 'expenses/js/decimal_thousands.js',)
 
 # ----------------------------------------------------------------------
 # --- Inlines: Expenses ichida ko'rinadigan qismlar ---
 
 class FoodItemInline(admin.TabularInline):
+    form = FoodItemAdminForm
     model = FoodItem
     extra = 0  # Bo'sh qatorlar soni
-    fields = ('food_product', 'quantity', 'price', 'total_item_price_display')
+    fields = ('food_product', 'quantity', 'price', 'total_item_price_display', 'payment_status', 'paid_amount')
     readonly_fields = ('total_item_price_display',)
 
     formfield_overrides = {
@@ -76,9 +200,10 @@ class FoodItemInline(admin.TabularInline):
     total_item_price_display.allow_tags = True
 
 class RawItemInline(admin.TabularInline):
+    form = RawItemAdminForm
     model = RawItem
     extra = 0
-    fields = ('raw_material', 'quantity', 'price', 'total_item_price_display')
+    fields = ('raw_material', 'quantity', 'price', 'total_item_price_display', 'payment_status', 'paid_amount')
     readonly_fields = ('total_item_price_display',)
 
     formfield_overrides = {
@@ -157,7 +282,7 @@ class ExpensesAdmin(ExportMixin, admin.ModelAdmin):
 	}
 
     class Media:
-        js = ('expenses/js/calculate_total.js', 'expenses/js/decimal_thousands.js',)
+        js = ('expenses/js/calculate_total.js', 'expenses/js/payment_status_toggle.js', 'expenses/js/decimal_thousands.js',)
 
     def save_formset(self, request, form, formset, change):
         """

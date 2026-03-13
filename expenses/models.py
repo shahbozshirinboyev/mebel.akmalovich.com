@@ -69,12 +69,31 @@ class Expenses(models.Model):
     def __str__(self):
         return f"Expense - {self.date}"
 
+
+class ExpensePaymentStatus(models.TextChoices):
+    UNPAID = "unpaid", "To'lanmagan"
+    PARTIAL = "partial", "Qisman"
+    PAID = "paid", "To'langan"
+
+
 class FoodItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     expense = models.ForeignKey(Expenses, on_delete=models.CASCADE, related_name="food_items")
     food_product = models.ForeignKey(FoodProducts, on_delete=models.CASCADE, verbose_name="Oziq-ovqat nomi")
     quantity = models.DecimalField(max_digits=20, decimal_places=2, default=0, verbose_name="Miqdori")
     price = models.DecimalField(max_digits=20, decimal_places=2, default=0, verbose_name="Narxi") # Narx majburiy bo'lgani ma'qul
+    payment_status = models.CharField(
+        max_length=10,
+        choices=ExpensePaymentStatus.choices,
+        default=ExpensePaymentStatus.UNPAID,
+        verbose_name="To'lov holati",
+    )
+    paid_amount = models.DecimalField(
+        max_digits=20,
+        decimal_places=2,
+        default=0,
+        verbose_name="To'langan summa",
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
 
     class Meta:
@@ -86,8 +105,27 @@ class FoodItem(models.Model):
         total = self.quantity * self.price
         return total
 
+    def clean(self):
+        total_value = self.total_item_price or 0
+        paid_value = self.paid_amount or 0
+
+        if self.payment_status == ExpensePaymentStatus.UNPAID:
+            self.paid_amount = 0
+        elif self.payment_status == ExpensePaymentStatus.PAID:
+            self.paid_amount = total_value
+        elif self.payment_status == ExpensePaymentStatus.PARTIAL:
+            if paid_value <= 0:
+                raise ValidationError({"paid_amount": "Qisman to'lov uchun summa 0 dan katta bo'lishi kerak."})
+            if total_value and paid_value >= total_value:
+                raise ValidationError({"paid_amount": "Qisman to'lov jami summadan kichik bo'lishi kerak."})
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.food_product.food_product_name} - {self.quantity}"
+
 
 class RawItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -95,6 +133,18 @@ class RawItem(models.Model):
     raw_material = models.ForeignKey(RawMaterials, on_delete=models.CASCADE, verbose_name="Xom-ashyo nomi")
     quantity = models.DecimalField(max_digits=20, decimal_places=2, default=0, verbose_name="Miqdori")
     price = models.DecimalField(max_digits=20, decimal_places=2, default=0, verbose_name="Narxi")
+    payment_status = models.CharField(
+        max_length=10,
+        choices=ExpensePaymentStatus.choices,
+        default=ExpensePaymentStatus.UNPAID,
+        verbose_name="To'lov holati",
+    )
+    paid_amount = models.DecimalField(
+        max_digits=20,
+        decimal_places=2,
+        default=0,
+        verbose_name="To'langan summa",
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
 
     class Meta:
@@ -105,6 +155,24 @@ class RawItem(models.Model):
     def total_item_price(self):
         total = self.quantity * self.price
         return total
+
+    def clean(self):
+        total_value = self.total_item_price or 0
+        paid_value = self.paid_amount or 0
+
+        if self.payment_status == ExpensePaymentStatus.UNPAID:
+            self.paid_amount = 0
+        elif self.payment_status == ExpensePaymentStatus.PAID:
+            self.paid_amount = total_value
+        elif self.payment_status == ExpensePaymentStatus.PARTIAL:
+            if paid_value <= 0:
+                raise ValidationError({"paid_amount": "Qisman to'lov uchun summa 0 dan katta bo'lishi kerak."})
+            if total_value and paid_value >= total_value:
+                raise ValidationError({"paid_amount": "Qisman to'lov jami summadan kichik bo'lishi kerak."})
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.raw_material.raw_material_name} - {self.quantity}"
