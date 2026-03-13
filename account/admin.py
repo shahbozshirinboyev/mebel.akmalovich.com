@@ -6,8 +6,55 @@ from import_export.admin import ExportMixin
 from .models import Expense, Income
 
 
+class RecordYearFilter(admin.SimpleListFilter):
+    title = "Yil"
+    parameter_name = "year"
+
+    def lookups(self, request, model_admin):
+        return [(str(year), str(year)) for year in range(2020, 2031)]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        try:
+            return queryset.filter(date__year=int(value))
+        except (TypeError, ValueError):
+            return queryset
+
+
+class RecordMonthFilter(admin.SimpleListFilter):
+    title = "Oy"
+    parameter_name = "month"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("1", "Yanvar"),
+            ("2", "Fevral"),
+            ("3", "Mart"),
+            ("4", "Aprel"),
+            ("5", "May"),
+            ("6", "Iyun"),
+            ("7", "Iyul"),
+            ("8", "Avgust"),
+            ("9", "Sentabr"),
+            ("10", "Oktabr"),
+            ("11", "Noyabr"),
+            ("12", "Dekabr"),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        try:
+            return queryset.filter(date__month=int(value))
+        except (TypeError, ValueError):
+            return queryset
+
+
 class RecordAdmin(admin.ModelAdmin):
-    # list_filter = ("date", "payment_type")
+    list_filter = ("payment_type", RecordYearFilter, RecordMonthFilter)
     exclude = ("created_by",)
     readonly_fields = ("created_by",)
     formfield_overrides = {
