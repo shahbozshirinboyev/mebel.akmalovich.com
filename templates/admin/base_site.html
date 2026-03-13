@@ -1,0 +1,75 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    #site-name {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 400;
+    }
+
+    #site-name .header-breadcrumbs {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 0.82rem;
+      line-height: 1.2;
+    }
+
+    #site-name .header-breadcrumbs a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      text-decoration: none;
+    }
+
+    #site-name .header-breadcrumbs a:hover,
+    #site-name .header-breadcrumbs a:focus {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    #site-name .header-breadcrumbs .separator {
+      opacity: 0.55;
+      font-size: 0.72rem;
+    }
+
+    #site-name .header-breadcrumbs .current {
+      color: var(--header-color);
+      font-weight: 500;
+    }
+  </style>
+{% endblock %}
+
+{% block branding %}
+  <div id="site-name">
+    <div class="header-breadcrumbs">
+      <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+      {% if opts %}
+        <span class="separator">&rsaquo;</span>
+        <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+        {% if cl %}
+          <span class="separator">&rsaquo;</span>
+          <span class="current">{{ cl.opts.verbose_name_plural|capfirst }}</span>
+        {% elif title %}
+          <span class="separator">&rsaquo;</span>
+          <span class="current">{{ title }}</span>
+        {% endif %}
+      {% elif title %}
+        <span class="separator">&rsaquo;</span>
+        <span class="current">{{ title }}</span>
+      {% endif %}
+    </div>
+  </div>
+  {% if user.is_anonymous %}
+    {% include "admin/color_theme_toggle.html" %}
+  {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
