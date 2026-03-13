@@ -1,4 +1,170 @@
 {% extends "admin/change_list.html" %}
+{% load i18n admin_urls admin_list %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    #content-main > .change-list-toolbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    #content-main > .change-list-toolbar .object-tools {
+      float: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 0 auto;
+      padding: 0;
+    }
+
+    #content-main > .change-list-toolbar .object-tools li {
+      height: auto;
+    }
+
+    #content-main > .change-list-toolbar .object-tools a {
+      margin-left: 0;
+    }
+
+    .change-list-filters {
+      display: flex;
+      flex: 1;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .admin-filter-dropdown {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .admin-filter-dropdown label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      color: var(--body-fg);
+      font-size: 0.875rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .admin-filter-dropdown select {
+      min-width: 170px;
+      max-width: 240px;
+      margin: 0;
+    }
+
+    .change-list-filter-clear {
+      white-space: nowrap;
+      text-decoration: none !important;
+    }
+
+    #changelist .changelist-form-container {
+      margin-right: 0;
+    }
+
+    @media (max-width: 767px) {
+      #content-main > .change-list-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      #content-main > .change-list-toolbar .object-tools {
+        margin-left: 0;
+      }
+
+      .admin-filter-dropdown {
+        width: 100%;
+      }
+
+      .admin-filter-dropdown label {
+        width: 100%;
+      }
+
+      .admin-filter-dropdown select {
+        flex: 1;
+        max-width: none;
+        min-width: 0;
+      }
+    }
+  </style>
+{% endblock %}
 
 {% block content_title %}{% endblock %}
 {% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    <div class="change-list-toolbar">
+      {% if cl.has_filters %}
+        <div class="change-list-filters" aria-label="{% translate 'Filters' %}">
+          {% for spec in cl.filter_specs %}
+            {% admin_list_filter cl spec %}
+          {% endfor %}
+          {% if cl.has_active_filters %}
+            <a href="{{ cl.clear_all_filters_qs }}" class="button change-list-filter-clear">
+              {% translate "Clear filters" %}
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% block object-tools %}
+        <ul class="object-tools">
+          {% block object-tools-items %}
+            {% change_list_object_tools %}
+          {% endblock %}
+        </ul>
+      {% endblock %}
+    </div>
+
+    {% if cl.formset and cl.formset.errors %}
+      <p class="errornote">
+        {% blocktranslate count counter=cl.formset.total_error_count %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}
+      </p>
+      {{ cl.formset.non_form_errors }}
+    {% endif %}
+
+    <div class="module" id="changelist">
+      <div class="changelist-form-container">
+        {% block filters %}{% endblock %}
+        <div>
+          {% block search %}{% search_form cl %}{% endblock %}
+          {% block date_hierarchy %}{% if cl.date_hierarchy %}{% date_hierarchy cl %}{% endif %}{% endblock %}
+
+          <form id="changelist-form" method="post"{% if cl.formset and cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>
+            {% csrf_token %}
+            {% if cl.formset %}
+              <div>{{ cl.formset.management_form }}</div>
+            {% endif %}
+
+            {% block result_list %}
+              {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+              {% result_list cl %}
+              {% if action_form and actions_on_bottom and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+            {% endblock %}
+
+            {% block pagination %}
+              <div class="changelist-footer">
+                {% pagination cl %}
+                {% if cl.formset and cl.result_count %}
+                  <input type="submit" name="_save" class="default" value="{% translate 'Save' %}">
+                {% endif %}
+              </div>
+            {% endblock %}
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

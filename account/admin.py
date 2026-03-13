@@ -54,7 +54,7 @@ class RecordMonthFilter(admin.SimpleListFilter):
 
 
 class RecordAdmin(admin.ModelAdmin):
-    list_filter = ("payment_type", RecordYearFilter, RecordMonthFilter)
+    list_filter = (RecordYearFilter, RecordMonthFilter, "payment_type")
     exclude = ("created_by",)
     readonly_fields = ("created_by",)
     formfield_overrides = {
