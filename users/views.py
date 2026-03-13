@@ -59,7 +59,7 @@ class WorkerDashboardView(LoginRequiredMixin, View):
 		selected_year = self._safe_int(request.GET.get("year"), current_year)
 		selected_month = self._safe_int(request.GET.get("month"), today.month)
 
-		if selected_year < 2020 or selected_year > current_year + 1:
+		if selected_year < 2020 or selected_year > 2030:
 			selected_year = current_year
 		if selected_month < 1 or selected_month > 12:
 			selected_month = today.month
@@ -78,7 +78,7 @@ class WorkerDashboardView(LoginRequiredMixin, View):
 			"Noyabr",
 			"Dekabr",
 		]
-		years = list(range(2020, current_year + 1))
+		years = list(range(2020, 2031))
 		months = list(enumerate(month_names, start=1))
 
 		employee = getattr(request.user, "employee", None)

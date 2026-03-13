@@ -18,9 +18,9 @@ class OrderedAdminSite(AdminSite):
             "User": 10,
         },
         "sales": {
-            "Sale": 10,
-            "Product": 20,
-            "Buyer": 30,
+            "Product": 10,
+            "Buyer": 20,
+            "Sale": 30,
             "SaleItem": 40,
         },
         "account": {
@@ -28,9 +28,9 @@ class OrderedAdminSite(AdminSite):
             "Expense": 20,
         },
         "expenses": {
-            "Expenses": 10,
-            "FoodProducts": 20,
-            "RawMaterials": 30,
+            "FoodProducts": 10,
+            "RawMaterials": 20,
+            "Expenses": 30,
             "FoodItem": 40,
             "RawItem": 50,
         },

@@ -47,10 +47,104 @@ class SaleItemInline(admin.TabularInline):
 		dj_models.DecimalField: {'widget': DecimalTextInput(attrs={'class': 'thousand-sep'})},
 	}
 
+
+class SaleYearFilter(admin.SimpleListFilter):
+	title = "Yil"
+	parameter_name = "year"
+
+	def lookups(self, request, model_admin):
+		return [(str(year), str(year)) for year in range(2020, 2031)]
+
+	def queryset(self, request, queryset):
+		value = self.value()
+		if not value:
+			return queryset
+		try:
+			return queryset.filter(date__year=int(value))
+		except (TypeError, ValueError):
+			return queryset
+
+
+class SaleMonthFilter(admin.SimpleListFilter):
+	title = "Oy"
+	parameter_name = "month"
+
+	def lookups(self, request, model_admin):
+		return (
+			("1", "Yanvar"),
+			("2", "Fevral"),
+			("3", "Mart"),
+			("4", "Aprel"),
+			("5", "May"),
+			("6", "Iyun"),
+			("7", "Iyul"),
+			("8", "Avgust"),
+			("9", "Sentabr"),
+			("10", "Oktabr"),
+			("11", "Noyabr"),
+			("12", "Dekabr"),
+		)
+
+	def queryset(self, request, queryset):
+		value = self.value()
+		if not value:
+			return queryset
+		try:
+			return queryset.filter(date__month=int(value))
+		except (TypeError, ValueError):
+			return queryset
+
+
+class SaleItemYearFilter(admin.SimpleListFilter):
+	title = "Yil"
+	parameter_name = "year"
+
+	def lookups(self, request, model_admin):
+		return [(str(year), str(year)) for year in range(2020, 2031)]
+
+	def queryset(self, request, queryset):
+		value = self.value()
+		if not value:
+			return queryset
+		try:
+			return queryset.filter(sale__date__year=int(value))
+		except (TypeError, ValueError):
+			return queryset
+
+
+class SaleItemMonthFilter(admin.SimpleListFilter):
+	title = "Oy"
+	parameter_name = "month"
+
+	def lookups(self, request, model_admin):
+		return (
+			("1", "Yanvar"),
+			("2", "Fevral"),
+			("3", "Mart"),
+			("4", "Aprel"),
+			("5", "May"),
+			("6", "Iyun"),
+			("7", "Iyul"),
+			("8", "Avgust"),
+			("9", "Sentabr"),
+			("10", "Oktabr"),
+			("11", "Noyabr"),
+			("12", "Dekabr"),
+		)
+
+	def queryset(self, request, queryset):
+		value = self.value()
+		if not value:
+			return queryset
+		try:
+			return queryset.filter(sale__date__month=int(value))
+		except (TypeError, ValueError):
+			return queryset
+
 @admin.register(Sale)
 class SaleAdmin(ExportMixin, admin.ModelAdmin):
       list_display = ("date", "created_by", "total_price", "description", "created_at")
-      list_filter = ()
+      list_filter = (SaleYearFilter, SaleMonthFilter)
       search_fields = ()
       inlines = (SaleItemInline,)
 
@@ -132,7 +226,7 @@ class SaleItemStatsFilter(admin.SimpleListFilter):
 class SaleItemAdmin(ExportMixin, admin.ModelAdmin):
 	form = SaleItemAdminForm
 	list_display = ("product", "quantity", "price", "total", "buyer", "payment_status", "buyers_paid", "sale", "created_at" )
-	list_filter = (SaleItemStatsFilter, "payment_status", "order_status", "created_at")
+	list_filter = (SaleItemYearFilter, SaleItemMonthFilter, "order_status", "payment_status")
 	# readonly_fields = ("total",)
 
 	formfield_overrides = {
@@ -159,6 +253,7 @@ class SaleItemAdmin(ExportMixin, admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("product_name", "measurement_unit", "created_at")
+	# search_fields = ("product_name",)
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': DecimalTextInput(attrs={'class': 'thousand-sep'})},
@@ -170,5 +265,4 @@ class ProductAdmin(ExportMixin, admin.ModelAdmin):
 @admin.register(Buyer)
 class BuyerAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("name", "sign", "phone_number", "created_at")
-	list_filter = ()
-	search_fields = ()
+	# search_fields = ("name", "phone_number", "sign")

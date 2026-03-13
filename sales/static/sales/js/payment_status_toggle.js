@@ -57,6 +57,10 @@
       }
 
       const statusSelects = table.querySelectorAll('select[name$="-payment_status"]');
+      if (statusSelects.length === 0) {
+        return;
+      }
+
       const hasPartial = Array.from(statusSelects).some(function (select) {
         const row = select.closest('tr');
         if (!row || row.classList.contains('empty-form')) return false;

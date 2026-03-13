@@ -66,6 +66,53 @@ class SalaryItemMonthFilter(admin.SimpleListFilter):
 			return queryset
 
 
+class SalaryYearFilter(admin.SimpleListFilter):
+	title = "Yil"
+	parameter_name = "year"
+
+	def lookups(self, request, model_admin):
+		return [(str(year), str(year)) for year in range(2020, 2031)]
+
+	def queryset(self, request, queryset):
+		value = self.value()
+		if not value:
+			return queryset
+		try:
+			return queryset.filter(date__year=int(value))
+		except (TypeError, ValueError):
+			return queryset
+
+
+class SalaryMonthFilter(admin.SimpleListFilter):
+	title = "Oy"
+	parameter_name = "month"
+
+	def lookups(self, request, model_admin):
+		return (
+			("1", "Yanvar"),
+			("2", "Fevral"),
+			("3", "Mart"),
+			("4", "Aprel"),
+			("5", "May"),
+			("6", "Iyun"),
+			("7", "Iyul"),
+			("8", "Avgust"),
+			("9", "Sentabr"),
+			("10", "Oktabr"),
+			("11", "Noyabr"),
+			("12", "Dekabr"),
+		)
+
+	def queryset(self, request, queryset):
+		value = self.value()
+		if not value:
+			return queryset
+		try:
+			return queryset.filter(date__month=int(value))
+		except (TypeError, ValueError):
+			return queryset
+
+
 @admin.register(Employee)
 class EmployeeAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("full_name", "user", "phone_number", "position", "salary_type", "base_salary", "created_at")
@@ -129,6 +176,7 @@ class SalaryItemAdmin(ExportMixin, admin.ModelAdmin):
 @admin.register(Salary)
 class SalaryAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("date", "created_by", "total_earned_salary", "total_paid_salary", "created_at")
+	list_filter = (SalaryYearFilter, SalaryMonthFilter)
 	inlines = [SalaryItemInline]
 	exclude = ("created_by",)
 

@@ -9,7 +9,7 @@ class ReportYearFilter(admin.SimpleListFilter):
 	parameter_name = "year"
 
 	def lookups(self, request, model_admin):
-		return [(str(year), str(year)) for year in range(2020, 2027)]
+		return [(str(year), str(year)) for year in range(2020, 2031)]
 
 	def queryset(self, request, queryset):
 		value = self.value()
