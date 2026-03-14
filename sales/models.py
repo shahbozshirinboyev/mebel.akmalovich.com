@@ -101,8 +101,8 @@ class SaleItem(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
 
 	class Meta:
-		verbose_name = "[ Zakaz elementi ] "
-		verbose_name_plural = "[ Zakaz elementlari ] "
+		verbose_name = "Zakaz mahsuloti "
+		verbose_name_plural = "Zakaz mahsulotlari "
 
 	def clean(self):
 		total_value = self.total or 0

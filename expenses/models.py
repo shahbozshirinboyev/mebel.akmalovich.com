@@ -97,8 +97,8 @@ class FoodItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
 
     class Meta:
-        verbose_name = "[ Oziq-ovqat elementi ] "
-        verbose_name_plural = "[ Oziq-ovqat elementlari ] "
+        verbose_name = "Oziq-ovqat xarajati "
+        verbose_name_plural = "Oziq-ovqat xarajatlari "
 
     @property
     def total_item_price(self):
@@ -148,8 +148,8 @@ class RawItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
 
     class Meta:
-        verbose_name = "[ Xom-ashyo elementi ] "
-        verbose_name_plural = "[ Xom-ashyo elementlari ] "
+        verbose_name = "Xom-ashyo xarajati "
+        verbose_name_plural = "Xom-ashyo xarajatlari "
 
     @property
     def total_item_price(self):
