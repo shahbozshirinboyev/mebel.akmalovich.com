@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'sales',
     'account.apps.AccountConfig',
     'expenses',
-    'reports',
 ]
 
 MIDDLEWARE = [
