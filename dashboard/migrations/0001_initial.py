@@ -1,0 +1,72 @@
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = []
+
+    operations = [
+        migrations.CreateModel(
+            name="DailyFinanceReport",
+            fields=[
+                (
+                    "date",
+                    models.DateField(
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="Sana",
+                    ),
+                ),
+                (
+                    "total_earned_salary",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default="0.00",
+                        max_digits=20,
+                        verbose_name="Ishchilar ishlab topgan summa",
+                    ),
+                ),
+                (
+                    "total_closed_sales",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default="0.00",
+                        max_digits=20,
+                        verbose_name="Yopilgan zakaz savdosi",
+                    ),
+                ),
+                (
+                    "total_expenses",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default="0.00",
+                        max_digits=20,
+                        verbose_name="Umumiy xarajat",
+                    ),
+                ),
+                (
+                    "balance",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default="0.00",
+                        max_digits=20,
+                        verbose_name="Balans",
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True,
+                        verbose_name="Yangilangan sana",
+                    ),
+                ),
+            ],
+            options={
+                "verbose_name": "Kunlik moliyaviy hisobot",
+                "verbose_name_plural": "Kunlik moliyaviy hisobotlar",
+                "ordering": ["-date"],
+            },
+        ),
+    ]

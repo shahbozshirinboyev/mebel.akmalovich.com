@@ -1,18 +1,23 @@
-﻿from django.contrib.admin import AdminSite
+from django.contrib.admin import AdminSite
 
 
 class OrderedAdminSite(AdminSite):
     """Admin paneldagi app va model tartibini qo'lda boshqaradi."""
 
     app_order = {
-        "users": 10,
-        "account": 20,
-        "salary": 30,
-        "sales": 40,
-        "expenses": 50,
+        "dashboard": 10,
+        "users": 20,
+        "account": 30,
+        "salary": 40,
+        "sales": 50,
+        "expenses": 60,
     }
 
     model_order = {
+        "dashboard": {
+            "Statistics": 10,
+            "DailyFinanceReport": 20,
+        },
         "users": {
             "User": 10,
         },

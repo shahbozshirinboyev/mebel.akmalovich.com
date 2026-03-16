@@ -1,0 +1,175 @@
+{% extends "admin/change_list.html" %}
+{% load l10n %}
+
+{% block content_title %}
+<h1>Dashboard statistika</h1>
+{% endblock %}
+
+{% block result_list %}
+{% if statistics %}
+
+<h2>Bugungi ({{ statistics.date }})</h2>
+<table class="admin-stat-table">
+  <tbody>
+    <tr>
+      <th>Bugungi kirim</th>
+      <td>{{ statistics.daily.income|default_if_none:"0" }}</td>
+      <th>Bugungi zakazlar</th>
+      <td>{{ statistics.daily.orders_total|default_if_none:"0" }}</td>
+      <th>Bugungi to'lanmagan zakazlar</th>
+      <td>{{ statistics.daily.unpaid_orders_count }}</td>
+    </tr>
+    <tr>
+      <th>Bugungi chiqim</th>
+      <td>{{ statistics.daily.expense|default_if_none:"0" }}</td>
+      <th>Bugungi yopilmagan zakazlar</th>
+      <td>{{ statistics.daily.open_orders_count }}</td>
+      <th>Bugungi to'lanmagan zakazlar summasi</th>
+      <td>{{ statistics.daily.unpaid_orders_amount|default_if_none:"0" }}</td>
+    </tr>
+    <tr>
+      <th>Bugungi kirim qoldiq</th>
+      <td>{{ statistics.daily.income_balance|default_if_none:"0" }}</td>
+      <th>Bugungi ish haqi xarajatlari</th>
+      <td>{{ statistics.daily.salary_expenses|default_if_none:"0" }}</td>
+    </tr>
+    <tr>
+      <th>Bugungi chiqim qoldiq</th>
+      <td>{{ statistics.daily.expense_balance|default_if_none:"0" }}</td>
+      <th>Bugungi oziq-ovqat xarajatlari</th>
+      <td>{{ statistics.daily.food_expenses|default_if_none:"0" }}</td>
+      <th>Bugungi to'lanmagan oziq-ovqat xarajatlari</th>
+      <td>{{ statistics.daily.unpaid_food_expenses|default_if_none:"0" }}</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td></td>
+      <th>Bugungi xom-ashyo xarajatlari</th>
+      <td>{{ statistics.daily.raw_expenses|default_if_none:"0" }}</td>
+      <th>Bugungi to'lanmagan xom-ashyo xarajatlari</th>
+      <td>{{ statistics.daily.unpaid_raw_expenses|default_if_none:"0" }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Oylik ({{ statistics.monthly.month }} / {{ statistics.monthly.year }})</h2>
+<form method="post" style="margin-bottom: 5px;">
+  {% csrf_token %}
+  <label for="id_monthly_year"><strong>Yil:</strong></label>
+  <select name="monthly_year" id="id_monthly_year" onchange="this.form.submit()">
+    {% localize off %}
+    {% for y in year_choices %}
+    <option value="{{ y }}" {% if y == monthly_year %}selected{% endif %}>{{ y }}</option>
+    {% endfor %}
+    {% endlocalize %}
+  </select>
+
+  <label for="id_monthly_month" style="margin-left: 10px;"><strong>Oy:</strong></label>
+  <select name="monthly_month" id="id_monthly_month" onchange="this.form.submit()">
+    {% for m, m_label in month_choices %}
+    <option value="{{ m }}" {% if m == monthly_month %}selected{% endif %}>{{ m_label }}</option>
+    {% endfor %}
+  </select>
+</form>
+<table class="admin-stat-table">
+  <tbody>
+    <tr>
+      <th>Oylik kirim</th>
+      <td>{{ statistics.monthly.income|default_if_none:"0" }}</td>
+      <th>Oylik zakazlar</th>
+      <td>{{ statistics.monthly.orders_total|default_if_none:"0" }}</td>
+      <th>Oylik to'lanmagan zakazlar</th>
+      <td>{{ statistics.monthly.unpaid_orders_count }}</td>
+    </tr>
+    <tr>
+      <th>Oylik chiqim</th>
+      <td>{{ statistics.monthly.expense|default_if_none:"0" }}</td>
+      <th>Oylik yopilmagan zakazlar</th>
+      <td>{{ statistics.monthly.open_orders_count }}</td>
+      <th>Oylik to'lanmagan zakazlar summasi</th>
+      <td>{{ statistics.monthly.unpaid_orders_amount|default_if_none:"0" }}</td>
+    </tr>
+    <tr>
+      <th>Oylik kirim qoldiq</th>
+      <td>{{ statistics.monthly.income_balance|default_if_none:"0" }}</td>
+      <th>Oylik ish haqi xarajatlari</th>
+      <td>{{ statistics.monthly.salary_expenses|default_if_none:"0" }}</td>
+    </tr>
+    <tr>
+      <th>Oylik chiqim qoldiq</th>
+      <td>{{ statistics.monthly.expense_balance|default_if_none:"0" }}</td>
+      <th>Oylik oziq-ovqat xarajatlari</th>
+      <td>{{ statistics.monthly.food_expenses|default_if_none:"0" }}</td>
+      <th>Oylik to'lanmagan oziq-ovqat xarajatlari</th>
+      <td>{{ statistics.monthly.unpaid_food_expenses|default_if_none:"0" }}</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td></td>
+      <th>Oylik xom-ashyo xarajatlari</th>
+      <td>{{ statistics.monthly.raw_expenses|default_if_none:"0" }}</td>
+      <th>Oylik to'lanmagan xom-ashyo xarajatlari</th>
+      <td>{{ statistics.monthly.unpaid_raw_expenses|default_if_none:"0" }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Yillik ({{ statistics.yearly.year }})</h2>
+<form method="post" style="margin-bottom: 5px;">
+  {% csrf_token %}
+  <label for="id_yearly_year"><strong>Yil:</strong></label>
+  <select name="yearly_year" id="id_yearly_year" onchange="this.form.submit()">
+    {% localize off %}
+    {% for y in year_choices %}
+    <option value="{{ y }}" {% if y == yearly_year %}selected{% endif %}>{{ y }}</option>
+    {% endfor %}
+    {% endlocalize %}
+  </select>
+</form>
+<table class="admin-stat-table">
+  <tbody>
+    <tr>
+      <th>Yillik kirim</th>
+      <td>{{ statistics.yearly.income|default_if_none:"0" }}</td>
+      <th>Yillik zakazlar</th>
+      <td>{{ statistics.yearly.orders_total|default_if_none:"0" }}</td>
+      <th>Yillik to'lanmagan zakazlar</th>
+      <td>{{ statistics.yearly.unpaid_orders_count }}</td>
+    </tr>
+    <tr>
+      <th>Yillik chiqim</th>
+      <td>{{ statistics.yearly.expense|default_if_none:"0" }}</td>
+      <th>Yillik yopilmagan zakazlar</th>
+      <td>{{ statistics.yearly.open_orders_count }}</td>
+      <th>Yillik to'lanmagan zakazlar summasi</th>
+      <td>{{ statistics.yearly.unpaid_orders_amount|default_if_none:"0" }}</td>
+    </tr>
+    <tr>
+      <th>Yillik kirim qoldiq</th>
+      <td>{{ statistics.yearly.income_balance|default_if_none:"0" }}</td>
+      <th>Yillik ish haqi xarajatlari</th>
+      <td>{{ statistics.yearly.salary_expenses|default_if_none:"0" }}</td>
+    </tr>
+    <tr>
+      <th>Yillik chiqim qoldiq</th>
+      <td>{{ statistics.yearly.expense_balance|default_if_none:"0" }}</td>
+      <th>Yillik oziq-ovqat xarajatlari</th>
+      <td>{{ statistics.yearly.food_expenses|default_if_none:"0" }}</td>
+      <th>Yillik to'lanmagan oziq-ovqat xarajatlari</th>
+      <td>{{ statistics.yearly.unpaid_food_expenses|default_if_none:"0" }}</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td></td>
+      <th>Yillik xom-ashyo xarajatlari</th>
+      <td>{{ statistics.yearly.raw_expenses|default_if_none:"0" }}</td>
+      <th>Yillik to'lanmagan xom-ashyo xarajatlari</th>
+      <td>{{ statistics.yearly.unpaid_raw_expenses|default_if_none:"0" }}</td>
+    </tr>
+  </tbody>
+</table>
+
+{% else %}
+{{ block.super }}
+{% endif %}
+{% endblock %}
