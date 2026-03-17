@@ -48,6 +48,9 @@
         0% { opacity: 0; transform: translateY(8px); }
         100% { opacity: 1; transform: translateY(0); }
     }
+
+    /* Ro'yxatdagi oxirgi chiziqni olib tashlash */
+    .stat-list li:last-child { border-bottom: none; padding-bottom: 0; }
 </style>
 {% endblock %}
 
@@ -87,79 +90,112 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div>
-                <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Kirim / Chiqim</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-emerald-100 dark:bg-emerald-500/10 p-3 rounded-xl text-emerald-600 dark:text-emerald-400 mr-4"><i class="bi bi-box-arrow-in-down-right text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Kirim</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.income|default_if_none:"0" }}</p></div>
-                    </div>
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-rose-100 dark:bg-rose-500/10 p-3 rounded-xl text-rose-600 dark:text-rose-400 mr-4"><i class="bi bi-box-arrow-up-right text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Chiqim</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.expense|default_if_none:"0" }}</p></div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Qoldiq</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-blue-100 dark:bg-blue-500/10 p-3 rounded-xl text-blue-600 dark:text-blue-400 mr-4"><i class="bi bi-safe text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Kirim qoldiq</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.income_balance|default_if_none:"0" }}</p></div>
-                    </div>
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-orange-100 dark:bg-orange-500/10 p-3 rounded-xl text-orange-600 dark:text-orange-400 mr-4"><i class="bi bi-wallet2 text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Chiqim qoldiq</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.expense_balance|default_if_none:"0" }}</p></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
-        <div class="mb-8">
-            <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Zakaz holati</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-indigo-100 dark:bg-indigo-500/10 p-3 rounded-xl text-indigo-600 dark:text-indigo-400 mr-4"><i class="bi bi-cart-check text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Jami zakazlar</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.orders_total|default_if_none:"0" }}</p></div>
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 flex flex-col overflow-hidden hover:shadow-md transition duration-300">
+                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700/60">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 p-2.5 rounded-xl">
+                            <i class="bi bi-arrow-left-right text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Kirim / Chiqim</h3>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">Kirim</p>
+                            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ statistics.daily.income|default_if_none:"0" }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">Chiqim</p>
+                            <p class="text-2xl font-bold text-rose-600 dark:text-rose-400">{{ statistics.daily.expense|default_if_none:"0" }}</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-pink-100 dark:bg-pink-500/10 p-3 rounded-xl text-pink-600 dark:text-pink-400 mr-4"><i class="bi bi-cash-stack text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">To'lanmagan summa</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.unpaid_orders_amount|default_if_none:"0" }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-amber-100 dark:bg-amber-500/10 p-3 rounded-xl text-amber-600 dark:text-amber-400 mr-4"><i class="bi bi-cart-dash text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Yopilmagan zakazlar (ta)</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.open_orders_count }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-red-100 dark:bg-red-500/10 p-3 rounded-xl text-red-600 dark:text-red-400 mr-4"><i class="bi bi-exclamation-octagon text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">To'lanmagan zakazlar (ta)</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.unpaid_orders_count }}</p></div>
+                <div class="p-6 flex-1">
+                    <ul class="space-y-4 stat-list">
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-4">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-safe text-blue-500 text-lg"></i> Kirim qoldiq</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.income_balance|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-4">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-wallet2 text-orange-500 text-lg"></i> Chiqim qoldiq</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.expense_balance|default_if_none:"0" }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
 
-        <div class="mb-8">
-            <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Xarajatlar va Qarzlar</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-purple-100 dark:bg-purple-500/10 p-3 rounded-xl text-purple-600 dark:text-purple-400 mr-4"><i class="bi bi-person-badge text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Ish haqi xarajatlari</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.salary_expenses|default_if_none:"0" }}</p></div>
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 flex flex-col overflow-hidden hover:shadow-md transition duration-300">
+                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700/60">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 p-2.5 rounded-xl">
+                            <i class="bi bi-cart-check text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Zakaz (Kirim)</h3>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Jami zakaz summasi</p>
+                    <p class="text-3xl font-bold text-slate-800 dark:text-white mt-1">{{ statistics.daily.orders_total|default_if_none:"0" }}</p>
                 </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-orange-100 dark:bg-orange-500/10 p-3 rounded-xl text-orange-600 dark:text-orange-400 mr-4"><i class="bi bi-egg-fried text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Oziq-ovqat xarajati</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.food_expenses|default_if_none:"0" }}</p></div>
+                <div class="p-6 flex-1">
+                    <ul class="space-y-3.5 stat-list">
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-check-circle text-emerald-500"></i> To'langan summa</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.paid_orders_amount|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-cash-stack text-rose-500"></i> To'lanmagan summa</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.unpaid_orders_amount|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-bag-check text-blue-500"></i> Yopilgan zakazlar (ta)</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.closed_orders_count|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-exclamation-octagon text-amber-500"></i> To'lanmagan zakazlar (ta)</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.unpaid_orders_count|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-cart-dash text-orange-500"></i> Yopilmagan zakazlar (ta)</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.open_orders_count|default_if_none:"0" }}</span>
+                        </li>
+                    </ul>
                 </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-slate-200 dark:bg-slate-600/30 p-3 rounded-xl text-slate-600 dark:text-slate-300 mr-4"><i class="bi bi-box-seam text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Xom-ashyo xarajati</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.raw_expenses|default_if_none:"0" }}</p></div>
+            </div>
+
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 flex flex-col overflow-hidden hover:shadow-md transition duration-300">
+                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700/60">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 p-2.5 rounded-xl">
+                            <i class="bi bi-receipt text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Xarajat (Chiqim)</h3>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Jami xarajat summasi</p>
+                    <p class="text-3xl font-bold text-slate-800 dark:text-white mt-1">{{ statistics.daily.total_expenses|default:statistics.daily.expense|default_if_none:"0" }}</p>
                 </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-red-100 dark:bg-red-500/10 p-3 rounded-xl text-red-600 dark:text-red-400 mr-4"><i class="bi bi-box-seam-fill text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Qarz (Xom-ashyo)</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.unpaid_raw_expenses|default_if_none:"0" }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-red-100 dark:bg-red-500/10 p-3 rounded-xl text-red-600 dark:text-red-400 mr-4"><i class="bi bi-basket-fill text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Qarz (Oziq-ovqat)</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.daily.unpaid_food_expenses|default_if_none:"0" }}</p></div>
+                <div class="p-6 flex-1">
+                    <ul class="space-y-3.5 stat-list">
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-person-badge text-purple-500"></i> Ish haqi xarajatlari</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.salary_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-egg-fried text-amber-500"></i> Oziq-ovqat xarajatlari</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.food_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-box-seam text-slate-500"></i> Xom-ashyo xarajatlari</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.raw_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-box-seam-fill text-red-500"></i> Qarz xom-ashyo</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.unpaid_raw_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-basket-fill text-rose-500"></i> Qarz oziq-ovqat</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.unpaid_food_expenses|default_if_none:"0" }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -198,79 +234,111 @@
             </form>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div>
-                <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Kirim / Chiqim</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-emerald-100 dark:bg-emerald-500/10 p-3 rounded-xl text-emerald-600 dark:text-emerald-400 mr-4"><i class="bi bi-box-arrow-in-down-right text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Kirim</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.income|default_if_none:"0" }}</p></div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 flex flex-col overflow-hidden hover:shadow-md transition duration-300">
+                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700/60">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 p-2.5 rounded-xl">
+                            <i class="bi bi-arrow-left-right text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Kirim / Chiqim</h3>
                     </div>
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-rose-100 dark:bg-rose-500/10 p-3 rounded-xl text-rose-600 dark:text-rose-400 mr-4"><i class="bi bi-box-arrow-up-right text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Chiqim</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.expense|default_if_none:"0" }}</p></div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Qoldiq</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-blue-100 dark:bg-blue-500/10 p-3 rounded-xl text-blue-600 dark:text-blue-400 mr-4"><i class="bi bi-safe text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Kirim qoldiq</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.income_balance|default_if_none:"0" }}</p></div>
-                    </div>
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-orange-100 dark:bg-orange-500/10 p-3 rounded-xl text-orange-600 dark:text-orange-400 mr-4"><i class="bi bi-wallet2 text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Chiqim qoldiq</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.expense_balance|default_if_none:"0" }}</p></div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">Kirim</p>
+                            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ statistics.monthly.income|default_if_none:"0" }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">Chiqim</p>
+                            <p class="text-2xl font-bold text-rose-600 dark:text-rose-400">{{ statistics.monthly.expense|default_if_none:"0" }}</p>
+                        </div>
                     </div>
                 </div>
+                <div class="p-6 flex-1">
+                    <ul class="space-y-4 stat-list">
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-4">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-safe text-blue-500 text-lg"></i> Kirim qoldiq</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.income_balance|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-4">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-wallet2 text-orange-500 text-lg"></i> Chiqim qoldiq</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.expense_balance|default_if_none:"0" }}</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
 
-        <div class="mb-8">
-            <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Zakaz holati</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-indigo-100 dark:bg-indigo-500/10 p-3 rounded-xl text-indigo-600 dark:text-indigo-400 mr-4"><i class="bi bi-cart-check text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Jami zakazlar</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.orders_total|default_if_none:"0" }}</p></div>
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 flex flex-col overflow-hidden hover:shadow-md transition duration-300">
+                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700/60">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 p-2.5 rounded-xl">
+                            <i class="bi bi-cart-check text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Zakaz (Kirim)</h3>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Jami zakaz summasi</p>
+                    <p class="text-3xl font-bold text-slate-800 dark:text-white mt-1">{{ statistics.monthly.orders_total|default_if_none:"0" }}</p>
                 </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-pink-100 dark:bg-pink-500/10 p-3 rounded-xl text-pink-600 dark:text-pink-400 mr-4"><i class="bi bi-cash-stack text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">To'lanmagan summa</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.unpaid_orders_amount|default_if_none:"0" }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-amber-100 dark:bg-amber-500/10 p-3 rounded-xl text-amber-600 dark:text-amber-400 mr-4"><i class="bi bi-cart-dash text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Yopilmagan zakazlar (ta)</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.open_orders_count }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-red-100 dark:bg-red-500/10 p-3 rounded-xl text-red-600 dark:text-red-400 mr-4"><i class="bi bi-exclamation-octagon text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">To'lanmagan zakazlar (ta)</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.unpaid_orders_count }}</p></div>
+                <div class="p-6 flex-1">
+                    <ul class="space-y-3.5 stat-list">
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-check-circle text-emerald-500"></i> To'langan summa</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.paid_orders_amount|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-cash-stack text-rose-500"></i> To'lanmagan summa</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.unpaid_orders_amount|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-bag-check text-blue-500"></i> Yopilgan zakazlar (ta)</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.closed_orders_count|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-exclamation-octagon text-amber-500"></i> To'lanmagan zakazlar (ta)</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.unpaid_orders_count|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-cart-dash text-orange-500"></i> Yopilmagan zakazlar (ta)</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.open_orders_count|default_if_none:"0" }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
 
-        <div class="mb-8">
-            <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Xarajatlar va Qarzlar</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-purple-100 dark:bg-purple-500/10 p-3 rounded-xl text-purple-600 dark:text-purple-400 mr-4"><i class="bi bi-person-badge text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Ish haqi xarajatlari</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.salary_expenses|default_if_none:"0" }}</p></div>
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 flex flex-col overflow-hidden hover:shadow-md transition duration-300">
+                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700/60">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 p-2.5 rounded-xl">
+                            <i class="bi bi-receipt text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Xarajat (Chiqim)</h3>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Jami xarajat summasi</p>
+                    <p class="text-3xl font-bold text-slate-800 dark:text-white mt-1">{{ statistics.monthly.total_expenses|default:statistics.monthly.expense|default_if_none:"0" }}</p>
                 </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-orange-100 dark:bg-orange-500/10 p-3 rounded-xl text-orange-600 dark:text-orange-400 mr-4"><i class="bi bi-egg-fried text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Oziq-ovqat xarajati</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.food_expenses|default_if_none:"0" }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-slate-200 dark:bg-slate-600/30 p-3 rounded-xl text-slate-600 dark:text-slate-300 mr-4"><i class="bi bi-box-seam text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Xom-ashyo xarajati</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.raw_expenses|default_if_none:"0" }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-red-100 dark:bg-red-500/10 p-3 rounded-xl text-red-600 dark:text-red-400 mr-4"><i class="bi bi-box-seam-fill text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Qarz (Xom-ashyo)</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.unpaid_raw_expenses|default_if_none:"0" }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-red-100 dark:bg-red-500/10 p-3 rounded-xl text-red-600 dark:text-red-400 mr-4"><i class="bi bi-basket-fill text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Qarz (Oziq-ovqat)</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.monthly.unpaid_food_expenses|default_if_none:"0" }}</p></div>
+                <div class="p-6 flex-1">
+                    <ul class="space-y-3.5 stat-list">
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-person-badge text-purple-500"></i> Ish haqi xarajatlari</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.salary_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-egg-fried text-amber-500"></i> Oziq-ovqat xarajatlari</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.food_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-box-seam text-slate-500"></i> Xom-ashyo xarajatlari</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.raw_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-box-seam-fill text-red-500"></i> Qarz xom-ashyo</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.unpaid_raw_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-basket-fill text-rose-500"></i> Qarz oziq-ovqat</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.unpaid_food_expenses|default_if_none:"0" }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -301,79 +369,111 @@
             </form>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div>
-                <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Kirim / Chiqim</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-emerald-100 dark:bg-emerald-500/10 p-3 rounded-xl text-emerald-600 dark:text-emerald-400 mr-4"><i class="bi bi-box-arrow-in-down-right text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Kirim</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.income|default_if_none:"0" }}</p></div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 flex flex-col overflow-hidden hover:shadow-md transition duration-300">
+                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700/60">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 p-2.5 rounded-xl">
+                            <i class="bi bi-arrow-left-right text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Kirim / Chiqim</h3>
                     </div>
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-rose-100 dark:bg-rose-500/10 p-3 rounded-xl text-rose-600 dark:text-rose-400 mr-4"><i class="bi bi-box-arrow-up-right text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Chiqim</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.expense|default_if_none:"0" }}</p></div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Qoldiq</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-blue-100 dark:bg-blue-500/10 p-3 rounded-xl text-blue-600 dark:text-blue-400 mr-4"><i class="bi bi-safe text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Kirim qoldiq</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.income_balance|default_if_none:"0" }}</p></div>
-                    </div>
-                    <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                        <div class="bg-orange-100 dark:bg-orange-500/10 p-3 rounded-xl text-orange-600 dark:text-orange-400 mr-4"><i class="bi bi-wallet2 text-2xl"></i></div>
-                        <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Chiqim qoldiq</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.expense_balance|default_if_none:"0" }}</p></div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">Kirim</p>
+                            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ statistics.yearly.income|default_if_none:"0" }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">Chiqim</p>
+                            <p class="text-2xl font-bold text-rose-600 dark:text-rose-400">{{ statistics.yearly.expense|default_if_none:"0" }}</p>
+                        </div>
                     </div>
                 </div>
+                <div class="p-6 flex-1">
+                    <ul class="space-y-4 stat-list">
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-4">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-safe text-blue-500 text-lg"></i> Kirim qoldiq</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.income_balance|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-4">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-wallet2 text-orange-500 text-lg"></i> Chiqim qoldiq</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.expense_balance|default_if_none:"0" }}</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
 
-        <div class="mb-8">
-            <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Zakaz holati</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-indigo-100 dark:bg-indigo-500/10 p-3 rounded-xl text-indigo-600 dark:text-indigo-400 mr-4"><i class="bi bi-cart-check text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Jami zakazlar</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.orders_total|default_if_none:"0" }}</p></div>
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 flex flex-col overflow-hidden hover:shadow-md transition duration-300">
+                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700/60">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 p-2.5 rounded-xl">
+                            <i class="bi bi-cart-check text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Zakaz (Kirim)</h3>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Jami zakaz summasi</p>
+                    <p class="text-3xl font-bold text-slate-800 dark:text-white mt-1">{{ statistics.yearly.orders_total|default_if_none:"0" }}</p>
                 </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-pink-100 dark:bg-pink-500/10 p-3 rounded-xl text-pink-600 dark:text-pink-400 mr-4"><i class="bi bi-cash-stack text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">To'lanmagan summa</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.unpaid_orders_amount|default_if_none:"0" }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-amber-100 dark:bg-amber-500/10 p-3 rounded-xl text-amber-600 dark:text-amber-400 mr-4"><i class="bi bi-cart-dash text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Yopilmagan zakazlar (ta)</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.open_orders_count }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-red-100 dark:bg-red-500/10 p-3 rounded-xl text-red-600 dark:text-red-400 mr-4"><i class="bi bi-exclamation-octagon text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">To'lanmagan zakazlar (ta)</p><p class="text-2xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.unpaid_orders_count }}</p></div>
+                <div class="p-6 flex-1">
+                    <ul class="space-y-3.5 stat-list">
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-check-circle text-emerald-500"></i> To'langan summa</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.paid_orders_amount|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-cash-stack text-rose-500"></i> To'lanmagan summa</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.unpaid_orders_amount|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-bag-check text-blue-500"></i> Yopilgan zakazlar (ta)</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.closed_orders_count|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-exclamation-octagon text-amber-500"></i> To'lanmagan zakazlar (ta)</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.unpaid_orders_count|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-cart-dash text-orange-500"></i> Yopilmagan zakazlar (ta)</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.open_orders_count|default_if_none:"0" }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
 
-        <div class="mb-8">
-            <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 ml-1">Xarajatlar va Qarzlar</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-purple-100 dark:bg-purple-500/10 p-3 rounded-xl text-purple-600 dark:text-purple-400 mr-4"><i class="bi bi-person-badge text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Ish haqi xarajatlari</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.salary_expenses|default_if_none:"0" }}</p></div>
+            <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 flex flex-col overflow-hidden hover:shadow-md transition duration-300">
+                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700/60">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 p-2.5 rounded-xl">
+                            <i class="bi bi-receipt text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Xarajat (Chiqim)</h3>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Jami xarajat summasi</p>
+                    <p class="text-3xl font-bold text-slate-800 dark:text-white mt-1">{{ statistics.yearly.total_expenses|default:statistics.yearly.expense|default_if_none:"0" }}</p>
                 </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-orange-100 dark:bg-orange-500/10 p-3 rounded-xl text-orange-600 dark:text-orange-400 mr-4"><i class="bi bi-egg-fried text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Oziq-ovqat xarajati</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.food_expenses|default_if_none:"0" }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-slate-200 dark:bg-slate-600/30 p-3 rounded-xl text-slate-600 dark:text-slate-300 mr-4"><i class="bi bi-box-seam text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Xom-ashyo xarajati</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.raw_expenses|default_if_none:"0" }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-red-100 dark:bg-red-500/10 p-3 rounded-xl text-red-600 dark:text-red-400 mr-4"><i class="bi bi-box-seam-fill text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Qarz (Xom-ashyo)</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.unpaid_raw_expenses|default_if_none:"0" }}</p></div>
-                </div>
-                <div class="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm p-5 border border-slate-200 dark:border-slate-700/60 flex items-center hover:shadow-md transition duration-300">
-                    <div class="bg-red-100 dark:bg-red-500/10 p-3 rounded-xl text-red-600 dark:text-red-400 mr-4"><i class="bi bi-basket-fill text-2xl"></i></div>
-                    <div><p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Qarz (Oziq-ovqat)</p><p class="text-xl font-bold text-slate-800 dark:text-white">{{ statistics.yearly.unpaid_food_expenses|default_if_none:"0" }}</p></div>
+                <div class="p-6 flex-1">
+                    <ul class="space-y-3.5 stat-list">
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-person-badge text-purple-500"></i> Ish haqi xarajatlari</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.salary_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-egg-fried text-amber-500"></i> Oziq-ovqat xarajatlari</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.food_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-box-seam text-slate-500"></i> Xom-ashyo xarajatlari</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.raw_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-box-seam-fill text-red-500"></i> Qarz xom-ashyo</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.unpaid_raw_expenses|default_if_none:"0" }}</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5"><i class="bi bi-basket-fill text-rose-500"></i> Qarz oziq-ovqat</span>
+                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.unpaid_food_expenses|default_if_none:"0" }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
