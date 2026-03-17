@@ -54,7 +54,7 @@ class Statistics(models.Model):
             or zero
         )
         daily_paid_orders_amount = (
-            SaleItem.objects.filter(sale__date=today, payment_status=SaleItem.PaymentStatus.PAID).aggregate(
+            SaleItem.objects.filter(sale__date=today).aggregate(
                 total=Coalesce(Sum("buyers_paid"), zero)
             )["total"]
             or zero
@@ -170,7 +170,7 @@ class Statistics(models.Model):
         )
         monthly_paid_orders_amount = (
             SaleItem.objects.filter(
-                sale__date__year=year, sale__date__month=month, payment_status=SaleItem.PaymentStatus.PAID
+                sale__date__year=year, sale__date__month=month
             ).aggregate(total=Coalesce(Sum("buyers_paid"), zero))["total"]
             or zero
         )
@@ -288,7 +288,7 @@ class Statistics(models.Model):
         )
         yearly_paid_orders_amount = (
             SaleItem.objects.filter(
-                sale__date__year=year, payment_status=SaleItem.PaymentStatus.PAID
+                sale__date__year=year
             ).aggregate(total=Coalesce(Sum("buyers_paid"), zero))["total"]
             or zero
         )
@@ -429,7 +429,7 @@ class Statistics(models.Model):
                 "expense_balance": yearly_expense_balance,
                 "salary_expenses": yearly_salary_expenses,
                 "food_expenses": yearly_food_expenses,
-                "unpaid_food_expenses": monthly_unpaid_food_expenses,
+                "unpaid_food_expenses": yearly_unpaid_food_expenses,
                 "raw_expenses": yearly_raw_expenses,
                 "unpaid_raw_expenses": yearly_unpaid_raw_expenses,
             },
