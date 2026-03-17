@@ -53,6 +53,15 @@ class Statistics(models.Model):
             )["total"]
             or zero
         )
+        daily_paid_orders_amount = (
+            SaleItem.objects.filter(sale__date=today, payment_status=SaleItem.PaymentStatus.PAID).aggregate(
+                total=Coalesce(Sum("buyers_paid"), zero)
+            )["total"]
+            or zero
+        )
+        daily_closed_orders_count = (
+            SaleItem.objects.filter(sale__date=today, order_status=SaleItem.OrderStatus.CLOSED).count()
+        )
         daily_unpaid_orders_count = (
             SaleItem.objects.filter(sale__date=today)
             .exclude(payment_status=SaleItem.PaymentStatus.PAID)
@@ -133,8 +142,8 @@ class Statistics(models.Model):
             daily_salary_expenses + daily_food_expenses + daily_raw_expenses
         )
 
-        daily_income_balance = daily_income - daily_expense
-        daily_expense_balance = daily_income - daily_total_expenses
+        daily_income_balance = daily_income - daily_orders_total
+        daily_expense_balance = daily_expense - daily_total_expenses
 
         # === OYLIK ===
         month = today.month
@@ -158,6 +167,17 @@ class Statistics(models.Model):
                 sale__date__year=year, sale__date__month=month
             ).aggregate(total=Coalesce(Sum("total"), zero))["total"]
             or zero
+        )
+        monthly_paid_orders_amount = (
+            SaleItem.objects.filter(
+                sale__date__year=year, sale__date__month=month, payment_status=SaleItem.PaymentStatus.PAID
+            ).aggregate(total=Coalesce(Sum("buyers_paid"), zero))["total"]
+            or zero
+        )
+        monthly_closed_orders_count = (
+            SaleItem.objects.filter(
+                sale__date__year=year, sale__date__month=month, order_status=SaleItem.OrderStatus.CLOSED
+            ).count()
         )
         monthly_unpaid_orders_count = (
             SaleItem.objects.filter(
@@ -243,8 +263,8 @@ class Statistics(models.Model):
             monthly_salary_expenses + monthly_food_expenses + monthly_raw_expenses
         )
 
-        monthly_income_balance = monthly_income - monthly_expense
-        monthly_expense_balance = monthly_income - monthly_total_expenses
+        monthly_income_balance = monthly_income - monthly_orders_total
+        monthly_expense_balance = monthly_expense - monthly_total_expenses
 
         # === YILLIK ===
         yearly_income = (
@@ -265,6 +285,17 @@ class Statistics(models.Model):
                 total=Coalesce(Sum("total"), zero)
             )["total"]
             or zero
+        )
+        yearly_paid_orders_amount = (
+            SaleItem.objects.filter(
+                sale__date__year=year, payment_status=SaleItem.PaymentStatus.PAID
+            ).aggregate(total=Coalesce(Sum("buyers_paid"), zero))["total"]
+            or zero
+        )
+        yearly_closed_orders_count = (
+            SaleItem.objects.filter(
+                sale__date__year=year, order_status=SaleItem.OrderStatus.CLOSED
+            ).count()
         )
         yearly_unpaid_orders_count = (
             SaleItem.objects.filter(sale__date__year=year)
@@ -340,14 +371,16 @@ class Statistics(models.Model):
             yearly_salary_expenses + yearly_food_expenses + yearly_raw_expenses
         )
 
-        yearly_income_balance = yearly_income - yearly_expense
-        yearly_expense_balance = yearly_income - yearly_total_expenses
+        yearly_income_balance = yearly_income - yearly_orders_total
+        yearly_expense_balance = yearly_expense - yearly_total_expenses
 
         return {
             "date": today,
             "daily": {
                 "income": daily_income,
                 "orders_total": daily_orders_total,
+                "paid_orders_amount": daily_paid_orders_amount,
+                "closed_orders_count": daily_closed_orders_count,
                 "unpaid_orders_count": daily_unpaid_orders_count,
                 "unpaid_orders_amount": daily_unpaid_orders_amount,
                 "open_orders_count": daily_open_orders_count,
@@ -366,6 +399,8 @@ class Statistics(models.Model):
                 "month": month,
                 "income": monthly_income,
                 "orders_total": monthly_orders_total,
+                "paid_orders_amount": monthly_paid_orders_amount,
+                "closed_orders_count": monthly_closed_orders_count,
                 "unpaid_orders_count": monthly_unpaid_orders_count,
                 "unpaid_orders_amount": monthly_unpaid_orders_amount,
                 "open_orders_count": monthly_open_orders_count,
@@ -383,6 +418,8 @@ class Statistics(models.Model):
                 "year": year,
                 "income": yearly_income,
                 "orders_total": yearly_orders_total,
+                "paid_orders_amount": yearly_paid_orders_amount,
+                "closed_orders_count": yearly_closed_orders_count,
                 "unpaid_orders_count": yearly_unpaid_orders_count,
                 "unpaid_orders_amount": yearly_unpaid_orders_amount,
                 "open_orders_count": yearly_open_orders_count,
@@ -392,7 +429,7 @@ class Statistics(models.Model):
                 "expense_balance": yearly_expense_balance,
                 "salary_expenses": yearly_salary_expenses,
                 "food_expenses": yearly_food_expenses,
-                "unpaid_food_expenses": yearly_unpaid_food_expenses,
+                "unpaid_food_expenses": monthly_unpaid_food_expenses,
                 "raw_expenses": yearly_raw_expenses,
                 "unpaid_raw_expenses": yearly_unpaid_raw_expenses,
             },
