@@ -238,38 +238,56 @@
     </div>
 
     <div id="tab-monthly" class="tab-content">
+
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
             <div class="flex items-center gap-4 mb-4 sm:mb-0">
                 <p class="text-xl font-bold text-slate-800 dark:text-white">Oylik hisobot:</p>
-            <div class="inline-flex items-center px-2 py-1 rounded-xl bg-blue-100/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 font-semibold text-sm shadow-sm">
-                <i class="bi bi-calendar-month mr-2"></i> {{ monthly_month_name }}, {{ monthly_year|unlocalize }}-yil
-            </div>
+                <div class="inline-flex items-center px-2 py-1 rounded-xl bg-blue-100/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 font-semibold text-sm shadow-sm">
+                    <i class="bi bi-calendar-month mr-2"></i> {{ monthly_month_name }}, {{ monthly_year|unlocalize }}-yil
+                </div>
             </div>
 
-            <form method="post" class="flex bg-white dark:bg-[#1e293b] p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700/60">
-                {% csrf_token %}
-                <div class="flex gap-3">
-                  <input type="hidden" name="active_tab" value="monthly">
-                <div class="flex items-center gap-2">
-                    <label for="id_monthly_year" class="text-sm text-slate-500 dark:text-slate-400 font-medium pl-1">Yil:</label>
-                    <select name="monthly_year" id="id_monthly_year" onchange="this.form.submit()" class="bg-slate-50 dark:bg-[#0f172a] dark:text-white border-slate-300 dark:border-slate-700 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-1.5 px-3 outline-none cursor-pointer">
-                        {% localize off %}
-                        {% for y in year_choices %}
-                        <option value="{{ y }}" {% if y == monthly_year %}selected{% endif %}>{{ y }}</option>
-                        {% endfor %}
-                        {% endlocalize %}
-                    </select>
+            <form method="post">
+    {% csrf_token %}
+    <div class="flex items-center gap-4 py-2">
+        <input type="hidden" name="active_tab" value="monthly">
+
+        <div class="flex items-center gap-2">
+
+            <label for="id_monthly_year" class="text-sm text-slate-500 dark:text-slate-400 font-medium">Yil:</label>
+
+            <div class="relative inline-block">
+                <select name="monthly_year" id="id_monthly_year" onchange="this.form.submit()"
+                    class="appearance-none bg-slate-50 dark:bg-[#0f172a] dark:text-white border border-slate-300 dark:border-slate-700 pl-2 pr-8 rounded-xl text-sm outline-none cursor-pointer focus:ring-2 focus:ring-blue-500">
+                    {% localize off %}
+                    {% for y in year_choices %}
+                    <option value="{{ y }}" {% if y == monthly_year %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                    {% endlocalize %}
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400 border border-red-500">
+                    <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
                 </div>
-                <div class="flex items-center gap-2">
-                    <label for="id_monthly_month" class="text-sm text-slate-500 dark:text-slate-400 font-medium pl-1">Oy:</label>
-                    <select name="monthly_month" id="id_monthly_month" onchange="this.form.submit()" class="bg-slate-50 dark:bg-[#0f172a] dark:text-white border-slate-300 dark:border-slate-700 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-1.5 px-3 outline-none cursor-pointer">
-                        {% for m, m_label in month_choices %}
-                        <option value="{{ m }}" {% if m == monthly_month %}selected{% endif %}>{{ m_label }}</option>
-                        {% endfor %}
-                    </select>
+            </div>
+
+        </div>
+
+        <div class="flex items-center gap-2">
+            <label for="id_monthly_month" class="text-sm text-slate-500 dark:text-slate-400 font-medium">Oy:</label>
+            <div class="relative inline-block">
+                <select name="monthly_month" id="id_monthly_month" onchange="this.form.submit()"
+                    class="appearance-none bg-slate-50 dark:bg-[#0f172a] dark:text-white border border-slate-300 dark:border-slate-700 pl-2 pr-4 rounded-xl text-sm outline-none cursor-pointer focus:ring-2 focus:ring-blue-500">
+                    {% for m, m_label in month_choices %}
+                    <option value="{{ m }}" {% if m == monthly_month %}selected{% endif %}>{{ m_label }}</option>
+                    {% endfor %}
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400 border border-red-500">
+                    <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
                 </div>
-                </div>
-            </form>
+            </div>
+        </div>
+    </div>
+</form>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
