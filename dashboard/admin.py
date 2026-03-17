@@ -91,6 +91,9 @@ class StatisticsAdmin(admin.ModelAdmin):
             (11, "Noyabr"),
             (12, "Dekabr"),
         ]
+        month_names = dict(context["month_choices"])
+        context["monthly_month_name"] = month_names.get(monthly_month)
+
         return super().changelist_view(request, extra_context=context)
 
 
