@@ -225,7 +225,7 @@ class SaleItemStatsFilter(admin.SimpleListFilter):
 @admin.register(SaleItem)
 class SaleItemAdmin(ExportMixin, admin.ModelAdmin):
 	form = SaleItemAdminForm
-	list_display = ("product", "quantity", "price", "total", "buyer", "payment_status", "buyers_paid", "sale", "created_at" )
+	list_display = ("product", "quantity", "price", "total", "buyer", "payment_status", "buyers_paid", "order_status", "sale", "created_at" )
 	list_filter = (SaleItemYearFilter, SaleItemMonthFilter, "order_status", "payment_status")
 	# readonly_fields = ("total",)
 
