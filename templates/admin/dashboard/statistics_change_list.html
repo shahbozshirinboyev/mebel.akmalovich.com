@@ -120,8 +120,8 @@
 
     <div id="tab-daily" class="tab-content">
         <div class="flex flex-wrap items-center gap-4 mb-8">
-            <p class="text-xl font-bold text-slate-800 dark:text-white">Bugungi hisobot</p>
-            <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-100/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 font-semibold text-sm shadow-sm">
+            <p class="text-xl font-bold text-slate-800 dark:text-white">Bugungi hisobot:</p>
+            <div class="inline-flex items-center px-2 py-1 rounded-xl bg-blue-100/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 font-semibold text-sm shadow-sm">
                 <i class="bi bi-calendar-check mr-2"></i> {{ statistics.date }}
             </div>
         </div>
@@ -240,10 +240,10 @@
     <div id="tab-monthly" class="tab-content">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
             <div class="flex items-center gap-4 mb-4 sm:mb-0">
-                <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Oylik hisobot</h2>
-                <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-100/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 font-semibold text-sm shadow-sm">
-                    <i class="bi bi-calendar-month mr-2"></i> {{ monthly_month_name }}, {{ monthly_year|unlocalize }}-yil
-                </div>
+                <p class="text-xl font-bold text-slate-800 dark:text-white">Oylik hisobot:</p>
+            <div class="inline-flex items-center px-2 py-1 rounded-xl bg-blue-100/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 font-semibold text-sm shadow-sm">
+                <i class="bi bi-calendar-month mr-2"></i> {{ monthly_month_name }}, {{ monthly_year|unlocalize }}-yil
+            </div>
             </div>
 
             <form method="post" class="flex bg-white dark:bg-[#1e293b] p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700/60">
@@ -385,8 +385,8 @@
     <div id="tab-yearly" class="tab-content">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
             <div class="flex items-center gap-4 mb-4 sm:mb-0">
-                <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Yillik hisobot</h2>
-                <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-100/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 font-semibold text-sm shadow-sm">
+                <p class="text-xl font-bold text-slate-800 dark:text-white">Yillik hisobot:</p>
+                <div class="inline-flex items-center px-2 py-1 rounded-xl bg-blue-100/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 font-semibold text-sm shadow-sm">
                     <i class="bi bi-calendar3 mr-2"></i> {{ statistics.yearly.year|unlocalize }}-yil
                 </div>
             </div>
