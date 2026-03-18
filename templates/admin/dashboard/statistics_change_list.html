@@ -7,8 +7,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
         <script>
-            const activeTab = localStorage.getItem('activeDashboardTab') || 'daily';
+            const serverActiveTab = "{{ active_tab|default:''|escapejs }}";
+            const activeTab = serverActiveTab || localStorage.getItem('activeDashboardTab') || 'daily';
             document.documentElement.setAttribute('data-active-tab', activeTab);
+            if (serverActiveTab) {
+                localStorage.setItem('activeDashboardTab', serverActiveTab);
+            }
 
             // Django'ning mavzularini (Light/Dark/Auto) Tailwind bilan sinxronlash
             function syncTailwindTheme() {
@@ -126,17 +130,17 @@
 
                     <nav class="inline-flex rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-[#1e293b] shadow-sm divide-x divide-slate-200 dark:divide-slate-700/80 overflow-hidden" aria-label="Tabs">
 
-                        <button onclick="switchTab('daily')" id="btn-daily" class="tab-btn relative px-2 py-2 border-b-2 border-transparent font-medium text-sm flex items-center justify-center transition-all duration-300 text-slate-600 hover:text-slate-800 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 min-w-[140px]">
+                        <button type="button" onclick="switchTab('daily')" id="btn-daily" class="tab-btn relative px-2 py-2 border-b-2 border-transparent font-medium text-sm flex items-center justify-center transition-all duration-300 text-slate-600 hover:text-slate-800 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 min-w-[140px]">
                             <i class="bi bi-calendar-check mr-2 text-lg opacity-80"></i>
                             Bugungi
                         </button>
 
-                        <button onclick="switchTab('monthly')" id="btn-monthly" class="tab-btn relative px-2 py-2 border-b-2 border-transparent font-medium text-sm flex items-center justify-center transition-all duration-300 text-slate-600 hover:text-slate-800 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 min-w-[140px]">
+                        <button type="button" onclick="switchTab('monthly')" id="btn-monthly" class="tab-btn relative px-2 py-2 border-b-2 border-transparent font-medium text-sm flex items-center justify-center transition-all duration-300 text-slate-600 hover:text-slate-800 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 min-w-[140px]">
                             <i class="bi bi-calendar-month mr-2 text-lg opacity-80"></i>
                             Oylik
                         </button>
 
-                        <button onclick="switchTab('yearly')" id="btn-yearly" class="tab-btn relative px-2 py-2 border-b-2 border-transparent font-medium text-sm flex items-center justify-center transition-all duration-300 text-slate-600 hover:text-slate-800 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 min-w-[140px]">
+                        <button type="button" onclick="switchTab('yearly')" id="btn-yearly" class="tab-btn relative px-2 py-2 border-b-2 border-transparent font-medium text-sm flex items-center justify-center transition-all duration-300 text-slate-600 hover:text-slate-800 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 min-w-[140px]">
                             <i class="bi bi-calendar3 mr-2 text-lg opacity-80"></i>
                             Yillik
                         </button>
@@ -145,12 +149,31 @@
                 </div>
 
                 <div id="tab-daily" class="tab-content">
-                    <div class="flex flex-col sm:flex-row sm:items-center mb-8">
-                        <p class="text-xl font-bold text-slate-800 dark:text-white">Bugungi hisobot:</p>
-                        <div class="inline-flex items-center px-2 py-1 rounded-xl bg-blue-100/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 font-semibold text-sm shadow-sm">
-                            <i class="bi bi-calendar-check mr-2"></i>
-                            {{ statistics.date }}
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <p class="text-xl font-bold text-slate-800 dark:text-white">Kunlik hisobot:</p>
+                            <div class="inline-flex items-center px-2 py-1 rounded-xl bg-blue-100/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 font-semibold text-sm shadow-sm">
+                                <i class="bi bi-calendar-check mr-2"></i>
+                                {{ statistics.date }}
+                            </div>
                         </div>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="active_tab" value="daily">
+
+                            <div class="flex items-center gap-2">
+                                <label for="id_daily_date" class="text-sm text-slate-500 dark:text-slate-400 font-medium">Sana:</label>
+                                <input
+                                    type="date"
+                                    name="daily_date"
+                                    id="id_daily_date"
+                                    value="{{ daily_date|date:'Y-m-d' }}"
+                                    onchange="this.form.submit()"
+                                    class="appearance-none bg-slate-50 dark:bg-[#0f172a] dark:text-white border border-slate-300 dark:border-slate-700 px-2 py-1 rounded-xl text-sm outline-none cursor-pointer focus:ring-2 focus:ring-blue-500 transition-all"
+                                >
+                            </div>
+                        </form>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -846,6 +869,13 @@
                         function switchTab(tabName) {
                             document.documentElement.setAttribute('data-active-tab', tabName);
                             localStorage.setItem('activeDashboardTab', tabName);
+                            document.querySelectorAll('input[name="active_tab"]').forEach((input) => {
+                                input.value = tabName;
+                            });
+
+                            const url = new URL(window.location.href);
+                            url.searchParams.set('active_tab', tabName);
+                            window.history.replaceState({}, '', url);
                         }
                     </script>
 

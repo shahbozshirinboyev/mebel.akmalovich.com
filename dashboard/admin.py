@@ -25,6 +25,7 @@ class StatisticsAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         today = timezone.localdate()
+        valid_tabs = {"daily", "monthly", "yearly"}
 
         def _parse_int(value, default):
             if value is None:
@@ -36,7 +37,23 @@ class StatisticsAdmin(admin.ModelAdmin):
             except (TypeError, ValueError):
                 return default
 
+        def _parse_date(value, default):
+            if not value:
+                return default
+            try:
+                return date.fromisoformat(value)
+            except (TypeError, ValueError):
+                return default
+
+        def _parse_active_tab(value, default):
+            if value in valid_tabs:
+                return value
+            return default
+
         if request.method == "POST":
+            daily_date = _parse_date(
+                request.POST.get("daily_date"), today
+            )
             monthly_year = _parse_int(
                 request.POST.get("monthly_year"), today.year
             )
@@ -46,13 +63,20 @@ class StatisticsAdmin(admin.ModelAdmin):
             yearly_year = _parse_int(
                 request.POST.get("yearly_year"), today.year
             )
+            active_tab = _parse_active_tab(
+                request.POST.get("active_tab"), "daily"
+            )
         else:
+            daily_date = today
             monthly_year = today.year
             monthly_month = today.month
             yearly_year = today.year
+            active_tab = _parse_active_tab(
+                request.GET.get("active_tab"), ""
+            )
 
-        # Asosiy statistika (bugungi kun uchun)
-        base_stats = Statistics.get_statistics(today)
+        # Asosiy statistika (tanlangan kun uchun)
+        base_stats = Statistics.get_statistics(daily_date)
 
         # Oylik statistika tanlangan oy/yil bo'yicha
         try:
@@ -73,9 +97,11 @@ class StatisticsAdmin(admin.ModelAdmin):
 
         context = extra_context or {}
         context["statistics"] = base_stats
+        context["daily_date"] = daily_date
         context["monthly_year"] = monthly_year
         context["monthly_month"] = monthly_month
         context["yearly_year"] = yearly_year
+        context["active_tab"] = active_tab
         context["year_choices"] = list(range(2020, 2031))
         context["month_choices"] = [
             (1, "Yanvar"),
