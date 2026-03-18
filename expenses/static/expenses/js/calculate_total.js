@@ -26,6 +26,7 @@
 
             var foodTotal = 0;
             var rawTotal = 0;
+            var otherTotal = 0;
 
             // Calculate for each inline group
             $('.inline-group').each(function(index, group) {
@@ -45,10 +46,12 @@
                     foodTotal = groupTotal;
                 } else if (index === 1) {
                     rawTotal = groupTotal;
+                } else if (index === 2) {
+                    otherTotal = groupTotal;
                 }
             });
 
-            var overallTotal = foodTotal + rawTotal;
+            var overallTotal = foodTotal + rawTotal + otherTotal;
 
             // Update food total
             var formattedFoodTotal = formatNumber(foodTotal);
@@ -57,6 +60,10 @@
             // Update raw total
             var formattedRawTotal = formatNumber(rawTotal);
             $('.field-raw_items_total .readonly').text(formattedRawTotal);
+
+            // Update other total
+            var formattedOtherTotal = formatNumber(otherTotal);
+            $('.field-other_items_total .readonly').text(formattedOtherTotal);
 
             // Update overall total cost
             var formattedOverallTotal = formatNumber(overallTotal);

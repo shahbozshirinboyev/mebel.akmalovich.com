@@ -300,6 +300,14 @@
                                     </li>
                                     <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
                                         <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5">
+                                            <i class="bi bi-gear text-cyan-500"></i>
+                                            Boshqa xarajatlar</span>
+                                        <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.other_expenses|default_if_none:"0"|floatformat:2 }}
+                                            <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-0.5">so'm</span>
+                                        </span>
+                                    </li>
+                                    <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                                        <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5">
                                             <i class="bi bi-exclamation-circle text-rose-500"></i>
                                             Qarz ish haqi</span>
                                         <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.unpaid_salary_expenses|default_if_none:"0"|floatformat:2 }}
@@ -327,6 +335,14 @@
                                             <i class="bi bi-box-seam-fill text-red-500"></i>
                                             Qarz xom-ashyo</span>
                                         <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.unpaid_raw_expenses|default_if_none:"0"|floatformat:2 }}
+                                            <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-0.5">so'm</span>
+                                        </span>
+                                    </li>
+                                    <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                                        <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5">
+                                            <i class="bi bi-exclamation-circle-fill text-cyan-500"></i>
+                                            Qarz boshqa xarajatlar</span>
+                                        <span class="font-bold text-slate-800 dark:text-white">{{ statistics.daily.unpaid_other_expenses|default_if_none:"0"|floatformat:2 }}
                                             <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-0.5">so'm</span>
                                         </span>
                                     </li>
@@ -539,6 +555,14 @@
                                         </li>
                                         <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
                                             <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5">
+                                                <i class="bi bi-gear text-cyan-500"></i>
+                                                Boshqa xarajatlar</span>
+                                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.other_expenses|default_if_none:"0"|floatformat:2 }}
+                                                <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-0.5">so'm</span>
+                                            </span>
+                                        </li>
+                                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5">
                                                 <i class="bi bi-exclamation-circle text-rose-500"></i>
                                                 Qarz ish haqi</span>
                                             <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.unpaid_salary_expenses|default_if_none:"0"|floatformat:2 }}
@@ -566,6 +590,14 @@
                                                 <i class="bi bi-box-seam-fill text-red-500"></i>
                                                 Qarz xom-ashyo</span>
                                             <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.unpaid_raw_expenses|default_if_none:"0"|floatformat:2 }}
+                                                <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-0.5">so'm</span>
+                                            </span>
+                                        </li>
+                                        <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                                            <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5">
+                                                <i class="bi bi-exclamation-circle-fill text-cyan-500"></i>
+                                                Qarz boshqa xarajatlar</span>
+                                            <span class="font-bold text-slate-800 dark:text-white">{{ statistics.monthly.unpaid_other_expenses|default_if_none:"0"|floatformat:2 }}
                                                 <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-0.5">so'm</span>
                                             </span>
                                         </li>
@@ -757,6 +789,14 @@
                                             </li>
                                             <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
                                                 <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5">
+                                                    <i class="bi bi-gear text-cyan-500"></i>
+                                                    Boshqa xarajatlar</span>
+                                                <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.other_expenses|default_if_none:"0"|floatformat:2 }}
+                                                    <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-0.5">so'm</span>
+                                                </span>
+                                            </li>
+                                            <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                                                <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5">
                                                     <i class="bi bi-exclamation-circle text-rose-500"></i>
                                                     Qarz ish haqi</span>
                                                 <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.unpaid_salary_expenses|default_if_none:"0"|floatformat:2 }}
@@ -784,6 +824,14 @@
                                                     <i class="bi bi-box-seam-fill text-red-500"></i>
                                                     Qarz xom-ashyo</span>
                                                 <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.unpaid_raw_expenses|default_if_none:"0"|floatformat:2 }}
+                                                    <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-0.5">so'm</span>
+                                                </span>
+                                            </li>
+                                            <li class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/50 pb-3.5">
+                                                <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-2.5">
+                                                    <i class="bi bi-exclamation-circle-fill text-cyan-500"></i>
+                                                    Qarz boshqa xarajatlar</span>
+                                                <span class="font-bold text-slate-800 dark:text-white">{{ statistics.yearly.unpaid_other_expenses|default_if_none:"0"|floatformat:2 }}
                                                     <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-0.5">so'm</span>
                                                 </span>
                                             </li>

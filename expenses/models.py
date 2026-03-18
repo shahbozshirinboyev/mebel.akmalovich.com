@@ -33,6 +33,22 @@ class RawMaterials(models.Model):
     def __str__(self):
         return f"{self.raw_material_name} ({self.measurement_unit})"
 
+
+class OtherExpenseTypes(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    expense_type_name = models.CharField(max_length=255, verbose_name="Xarajat turi nomi")
+    measurement_unit = models.CharField(max_length=64, blank=True, verbose_name="O'lchov birligi")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
+
+    class Meta:
+        verbose_name = "Boshqa xarajat turi "
+        verbose_name_plural = "Boshqa xarajat turlari "
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.expense_type_name} ({self.measurement_unit})"
+
+
 class Expenses(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Yaratgan foydalanuvchi")
@@ -47,11 +63,12 @@ class Expenses(models.Model):
 
     def update_total_cost(self):
         """
-        Xarajatning umumiy summasini FoodItem va RawItem'lar asosida hisoblaydi.
+        Xarajatning umumiy summasini barcha itemlar asosida hisoblaydi.
         """
         food_sum = sum(item.total_item_price for item in self.food_items.all())
         raw_sum = sum(item.total_item_price for item in self.raw_items.all())
-        self.total_cost = food_sum + raw_sum
+        other_sum = sum(item.total_item_price for item in self.other_items.all())
+        self.total_cost = food_sum + raw_sum + other_sum
         self.save()
 
     @property
@@ -61,6 +78,10 @@ class Expenses(models.Model):
     @property
     def raw_items_total(self):
         return sum(item.total_item_price for item in self.raw_items.all())
+
+    @property
+    def other_items_total(self):
+        return sum(item.total_item_price for item in self.other_items.all())
 
     class Meta:
         verbose_name = "Xarajat "
@@ -176,3 +197,58 @@ class RawItem(models.Model):
 
     def __str__(self):
         return f"{self.raw_material.raw_material_name} - {self.quantity}"
+
+
+class OtherExpenseItem(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    expense = models.ForeignKey(Expenses, on_delete=models.CASCADE, related_name="other_items")
+    expense_type = models.ForeignKey(
+        OtherExpenseTypes,
+        on_delete=models.CASCADE,
+        verbose_name="Xarajat turi",
+    )
+    quantity = models.DecimalField(max_digits=20, decimal_places=2, default=0, verbose_name="Miqdori")
+    price = models.DecimalField(max_digits=20, decimal_places=2, default=0, verbose_name="Narxi")
+    payment_status = models.CharField(
+        max_length=10,
+        choices=ExpensePaymentStatus.choices,
+        default=ExpensePaymentStatus.UNPAID,
+        verbose_name="To'lov holati",
+    )
+    paid_amount = models.DecimalField(
+        max_digits=20,
+        decimal_places=2,
+        default=0,
+        verbose_name="To'langan summa",
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
+
+    class Meta:
+        verbose_name = "Boshqa xarajat "
+        verbose_name_plural = "Boshqa xarajatlar "
+
+    @property
+    def total_item_price(self):
+        total = self.quantity * self.price
+        return total
+
+    def clean(self):
+        total_value = self.total_item_price or 0
+        paid_value = self.paid_amount or 0
+
+        if self.payment_status == ExpensePaymentStatus.UNPAID:
+            self.paid_amount = 0
+        elif self.payment_status == ExpensePaymentStatus.PAID:
+            self.paid_amount = total_value
+        elif self.payment_status == ExpensePaymentStatus.PARTIAL:
+            if paid_value <= 0:
+                raise ValidationError({"paid_amount": "Qisman to'lov uchun summa 0 dan katta bo'lishi kerak."})
+            if total_value and paid_value >= total_value:
+                raise ValidationError({"paid_amount": "Qisman to'lov jami summadan kichik bo'lishi kerak."})
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.expense_type.expense_type_name} - {self.quantity}"

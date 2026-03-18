@@ -4,7 +4,16 @@ from django.db import models as dj_models
 from django.forms import TextInput, Textarea
 from django.utils.formats import number_format
 from import_export.admin import ExportMixin
-from .models import ExpensePaymentStatus, FoodProducts, RawMaterials, Expenses, FoodItem, RawItem
+from .models import (
+    ExpensePaymentStatus,
+    FoodProducts,
+    RawMaterials,
+    OtherExpenseTypes,
+    Expenses,
+    FoodItem,
+    RawItem,
+    OtherExpenseItem,
+)
 
 
 class ExpenseItemAdminForm(forms.ModelForm):
@@ -30,6 +39,12 @@ class RawItemAdminForm(ExpenseItemAdminForm):
         model = RawItem
         fields = "__all__"
 
+
+class OtherExpenseItemAdminForm(ExpenseItemAdminForm):
+    class Meta:
+        model = OtherExpenseItem
+        fields = "__all__"
+
 # Mahsulotlar va xomashyolarni oddiy ro'yxat sifatida ro'yxatdan o'tkazamiz
 @admin.register(FoodProducts)
 class FoodProductsAdmin(ExportMixin, admin.ModelAdmin):
@@ -40,6 +55,11 @@ class FoodProductsAdmin(ExportMixin, admin.ModelAdmin):
 class RawMaterialsAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('raw_material_name', 'measurement_unit', 'created_at')
     # search_fields = ('raw_material_name',)
+
+
+@admin.register(OtherExpenseTypes)
+class OtherExpenseTypesAdmin(ExportMixin, admin.ModelAdmin):
+    list_display = ('expense_type_name', 'measurement_unit', 'created_at')
 
 # ----------------------------------------------------------------------
 class FoodItemYearFilter(admin.SimpleListFilter):
@@ -178,6 +198,27 @@ class RawItemAdmin(ExportMixin, admin.ModelAdmin):
 	class Media:
 		js = ('expenses/js/calculate_total.js', 'expenses/js/payment_status_toggle.js', 'expenses/js/decimal_thousands.js',)
 
+
+@admin.register(OtherExpenseItem)
+class OtherExpenseItemAdmin(ExportMixin, admin.ModelAdmin):
+	form = OtherExpenseItemAdminForm
+	list_display = ("expense_type", "quantity", "price", "total_item_price", "payment_status", "paid_amount", "expense", "created_at" )
+	list_filter = (FoodItemYearFilter, FoodItemMonthFilter, "payment_status")
+	readonly_fields = ("total_item_price",)
+
+	formfield_overrides = {
+		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+	}
+
+	def save_model(self, request, obj, form, change):
+		super().save_model(request, obj, form, change)
+
+		if obj.expense:
+			obj.expense.update_total_cost()
+
+	class Media:
+		js = ('expenses/js/calculate_total.js', 'expenses/js/payment_status_toggle.js', 'expenses/js/decimal_thousands.js',)
+
 # ----------------------------------------------------------------------
 # --- Inlines: Expenses ichida ko'rinadigan qismlar ---
 
@@ -204,6 +245,25 @@ class RawItemInline(admin.TabularInline):
     model = RawItem
     extra = 0
     fields = ('raw_material', 'quantity', 'price', 'total_item_price_display', 'payment_status', 'paid_amount')
+    readonly_fields = ('total_item_price_display',)
+
+    formfield_overrides = {
+		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
+	}
+
+    def total_item_price_display(self, obj):
+        if obj.pk:
+            return number_format(obj.total_item_price, decimal_pos=2, use_l10n=True)
+        return '<span class="total-item-price-display">0.00</span>'
+    total_item_price_display.short_description = "Total Price"
+    total_item_price_display.allow_tags = True
+
+
+class OtherExpenseItemInline(admin.TabularInline):
+    form = OtherExpenseItemAdminForm
+    model = OtherExpenseItem
+    extra = 0
+    fields = ('expense_type', 'quantity', 'price', 'total_item_price_display', 'payment_status', 'paid_amount')
     readonly_fields = ('total_item_price_display',)
 
     formfield_overrides = {
@@ -270,10 +330,10 @@ class ExpensesAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('date', 'created_by', 'total_cost', 'description', 'created_at')
     list_filter = (ExpensesYearFilter, ExpensesMonthFilter)
     # search_fields = ('description',)
-    inlines = [FoodItemInline, RawItemInline]
+    inlines = [FoodItemInline, RawItemInline, OtherExpenseItemInline]
 
     # total_cost modelda editable=False bo'lgani uchun readonly_fields'ga qo'shish kerak
-    readonly_fields = ('food_items_total', 'raw_items_total', 'total_cost')
+    readonly_fields = ('food_items_total', 'raw_items_total', 'other_items_total', 'total_cost')
     exclude = ('created_by',)
 
     formfield_overrides = {

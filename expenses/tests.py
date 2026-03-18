@@ -8,6 +8,8 @@ from expenses.models import (
     Expenses,
     FoodItem,
     FoodProducts,
+    OtherExpenseItem,
+    OtherExpenseTypes,
     RawItem,
     RawMaterials,
 )
@@ -18,6 +20,10 @@ class ExpenseItemPaymentStatusTests(TestCase):
         self.expense = Expenses.objects.create(date="2026-03-13")
         self.food_product = FoodProducts.objects.create(food_product_name="Non", measurement_unit="kg")
         self.raw_material = RawMaterials.objects.create(raw_material_name="Temir", measurement_unit="kg")
+        self.other_expense_type = OtherExpenseTypes.objects.create(
+            expense_type_name="Elektr energiya",
+            measurement_unit="oy",
+        )
 
     def test_food_item_paid_status_sets_paid_amount_to_total(self):
         item = FoodItem.objects.create(
@@ -43,3 +49,40 @@ class ExpenseItemPaymentStatusTests(TestCase):
 
         with self.assertRaises(ValidationError):
             item.save()
+
+    def test_other_expense_paid_status_sets_paid_amount_to_total(self):
+        item = OtherExpenseItem.objects.create(
+            expense=self.expense,
+            expense_type=self.other_expense_type,
+            quantity=Decimal("1"),
+            price=Decimal("120"),
+            payment_status=ExpensePaymentStatus.PAID,
+            paid_amount=Decimal("0"),
+        )
+
+        self.assertEqual(item.paid_amount, Decimal("120"))
+
+    def test_expense_total_cost_includes_other_items(self):
+        FoodItem.objects.create(
+            expense=self.expense,
+            food_product=self.food_product,
+            quantity=Decimal("2"),
+            price=Decimal("15"),
+        )
+        RawItem.objects.create(
+            expense=self.expense,
+            raw_material=self.raw_material,
+            quantity=Decimal("3"),
+            price=Decimal("10"),
+        )
+        OtherExpenseItem.objects.create(
+            expense=self.expense,
+            expense_type=self.other_expense_type,
+            quantity=Decimal("1"),
+            price=Decimal("50"),
+        )
+
+        self.expense.update_total_cost()
+        self.expense.refresh_from_db()
+
+        self.assertEqual(self.expense.total_cost, Decimal("110"))

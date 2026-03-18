@@ -25,7 +25,13 @@ class Statistics(models.Model):
         Kunlik, oylik va yillik statistikani qaytaradi.
         """
         from account.models import Income, Expense
-        from expenses.models import Expenses, FoodItem, RawItem, ExpensePaymentStatus
+        from expenses.models import (
+            Expenses,
+            FoodItem,
+            RawItem,
+            OtherExpenseItem,
+            ExpensePaymentStatus,
+        )
         from salary.models import Salary, SalaryItem
         from sales.models import SaleItem
 
@@ -163,6 +169,12 @@ class Statistics(models.Model):
             )["total"]
             or zero
         )
+        daily_other_expenses = (
+            OtherExpenseItem.objects.filter(expense__date=today).aggregate(
+                total=Coalesce(Sum(F("quantity") * F("price")), zero)
+            )["total"]
+            or zero
+        )
         daily_unpaid_raw_expenses = (
             RawItem.objects.filter(
                 expense__date=today
@@ -179,9 +191,26 @@ class Statistics(models.Model):
             )["total"]
             or zero
         )
+        daily_unpaid_other_expenses = (
+            OtherExpenseItem.objects.filter(expense__date=today)
+            .exclude(payment_status=ExpensePaymentStatus.PAID)
+            .aggregate(
+                total=Coalesce(
+                    Sum(
+                        F("quantity") * F("price")
+                        - Coalesce(F("paid_amount"), zero)
+                    ),
+                    zero,
+                )
+            )["total"]
+            or zero
+        )
 
         daily_total_expenses = (
-            daily_salary_expenses + daily_food_expenses + daily_raw_expenses
+            daily_salary_expenses
+            + daily_food_expenses
+            + daily_raw_expenses
+            + daily_other_expenses
         )
 
         daily_income_balance = daily_income - daily_orders_total
@@ -330,6 +359,12 @@ class Statistics(models.Model):
             ).aggregate(total=Coalesce(Sum(F("quantity") * F("price")), zero))["total"]
             or zero
         )
+        monthly_other_expenses = (
+            OtherExpenseItem.objects.filter(
+                expense__date__year=year, expense__date__month=month
+            ).aggregate(total=Coalesce(Sum(F("quantity") * F("price")), zero))["total"]
+            or zero
+        )
         monthly_unpaid_raw_expenses = (
             RawItem.objects.filter(
                 expense__date__year=year, expense__date__month=month
@@ -346,9 +381,28 @@ class Statistics(models.Model):
             )["total"]
             or zero
         )
+        monthly_unpaid_other_expenses = (
+            OtherExpenseItem.objects.filter(
+                expense__date__year=year, expense__date__month=month
+            )
+            .exclude(payment_status=ExpensePaymentStatus.PAID)
+            .aggregate(
+                total=Coalesce(
+                    Sum(
+                        F("quantity") * F("price")
+                        - Coalesce(F("paid_amount"), zero)
+                    ),
+                    zero,
+                )
+            )["total"]
+            or zero
+        )
 
         monthly_total_expenses = (
-            monthly_salary_expenses + monthly_food_expenses + monthly_raw_expenses
+            monthly_salary_expenses
+            + monthly_food_expenses
+            + monthly_raw_expenses
+            + monthly_other_expenses
         )
 
         monthly_income_balance = monthly_income - monthly_orders_total
@@ -482,6 +536,12 @@ class Statistics(models.Model):
             )["total"]
             or zero
         )
+        yearly_other_expenses = (
+            OtherExpenseItem.objects.filter(expense__date__year=year).aggregate(
+                total=Coalesce(Sum(F("quantity") * F("price")), zero)
+            )["total"]
+            or zero
+        )
         yearly_unpaid_raw_expenses = (
             RawItem.objects.filter(expense__date__year=year)
             .exclude(payment_status=ExpensePaymentStatus.PAID)
@@ -496,9 +556,26 @@ class Statistics(models.Model):
             )["total"]
             or zero
         )
+        yearly_unpaid_other_expenses = (
+            OtherExpenseItem.objects.filter(expense__date__year=year)
+            .exclude(payment_status=ExpensePaymentStatus.PAID)
+            .aggregate(
+                total=Coalesce(
+                    Sum(
+                        F("quantity") * F("price")
+                        - Coalesce(F("paid_amount"), zero)
+                    ),
+                    zero,
+                )
+            )["total"]
+            or zero
+        )
 
         yearly_total_expenses = (
-            yearly_salary_expenses + yearly_food_expenses + yearly_raw_expenses
+            yearly_salary_expenses
+            + yearly_food_expenses
+            + yearly_raw_expenses
+            + yearly_other_expenses
         )
 
         yearly_income_balance = yearly_income - yearly_orders_total
@@ -525,6 +602,8 @@ class Statistics(models.Model):
                 "unpaid_food_expenses": daily_unpaid_food_expenses,
                 "raw_expenses": daily_raw_expenses,
                 "unpaid_raw_expenses": daily_unpaid_raw_expenses,
+                "other_expenses": daily_other_expenses,
+                "unpaid_other_expenses": daily_unpaid_other_expenses,
             },
             "monthly": {
                 "year": year,
@@ -547,6 +626,8 @@ class Statistics(models.Model):
                 "unpaid_food_expenses": monthly_unpaid_food_expenses,
                 "raw_expenses": monthly_raw_expenses,
                 "unpaid_raw_expenses": monthly_unpaid_raw_expenses,
+                "other_expenses": monthly_other_expenses,
+                "unpaid_other_expenses": monthly_unpaid_other_expenses,
             },
             "yearly": {
                 "year": year,
@@ -568,6 +649,8 @@ class Statistics(models.Model):
                 "unpaid_food_expenses": yearly_unpaid_food_expenses,
                 "raw_expenses": yearly_raw_expenses,
                 "unpaid_raw_expenses": yearly_unpaid_raw_expenses,
+                "other_expenses": yearly_other_expenses,
+                "unpaid_other_expenses": yearly_unpaid_other_expenses,
             },
         }
 

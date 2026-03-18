@@ -34,9 +34,11 @@ class OrderedAdminSite(AdminSite):
         "expenses": {
             "FoodProducts": 10,
             "RawMaterials": 20,
+            "OtherExpenseTypes": 25,
             "Expenses": 30,
             "FoodItem": 40,
             "RawItem": 50,
+            "OtherExpenseItem": 60,
         },
         "salary": {
             "Employee": 10,
