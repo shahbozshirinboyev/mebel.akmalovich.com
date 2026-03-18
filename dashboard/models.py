@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Case, When, DecimalField
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -94,8 +94,38 @@ class Statistics(models.Model):
             SalaryItem.objects.filter(salary__date=today).aggregate(
                 total=Coalesce(
                     Sum(
-                        Coalesce(F("earned_amount"), zero)
-                        - Coalesce(F("paid_amount"), zero)
+                        Case(
+                            When(
+                                earned_amount__gt=Coalesce(F("paid_amount"), zero),
+                                then=Coalesce(F("earned_amount"), zero)
+                                - Coalesce(F("paid_amount"), zero),
+                            ),
+                            default=zero,
+                            output_field=DecimalField(
+                                max_digits=20, decimal_places=2
+                            ),
+                        )
+                    ),
+                    zero,
+                )
+            )["total"]
+            or zero
+        )
+        daily_overpaid_salary_expenses = (
+            SalaryItem.objects.filter(salary__date=today).aggregate(
+                total=Coalesce(
+                    Sum(
+                        Case(
+                            When(
+                                paid_amount__gt=Coalesce(F("earned_amount"), zero),
+                                then=Coalesce(F("paid_amount"), zero)
+                                - Coalesce(F("earned_amount"), zero),
+                            ),
+                            default=zero,
+                            output_field=DecimalField(
+                                max_digits=20, decimal_places=2
+                            ),
+                        )
                     ),
                     zero,
                 )
@@ -230,8 +260,40 @@ class Statistics(models.Model):
             ).aggregate(
                 total=Coalesce(
                     Sum(
-                        Coalesce(F("earned_amount"), zero)
-                        - Coalesce(F("paid_amount"), zero)
+                        Case(
+                            When(
+                                earned_amount__gt=Coalesce(F("paid_amount"), zero),
+                                then=Coalesce(F("earned_amount"), zero)
+                                - Coalesce(F("paid_amount"), zero),
+                            ),
+                            default=zero,
+                            output_field=DecimalField(
+                                max_digits=20, decimal_places=2
+                            ),
+                        )
+                    ),
+                    zero,
+                )
+            )["total"]
+            or zero
+        )
+        monthly_overpaid_salary_expenses = (
+            SalaryItem.objects.filter(
+                salary__date__year=year, salary__date__month=month
+            ).aggregate(
+                total=Coalesce(
+                    Sum(
+                        Case(
+                            When(
+                                paid_amount__gt=Coalesce(F("earned_amount"), zero),
+                                then=Coalesce(F("paid_amount"), zero)
+                                - Coalesce(F("earned_amount"), zero),
+                            ),
+                            default=zero,
+                            output_field=DecimalField(
+                                max_digits=20, decimal_places=2
+                            ),
+                        )
                     ),
                     zero,
                 )
@@ -354,8 +416,38 @@ class Statistics(models.Model):
             SalaryItem.objects.filter(salary__date__year=year).aggregate(
                 total=Coalesce(
                     Sum(
-                        Coalesce(F("earned_amount"), zero)
-                        - Coalesce(F("paid_amount"), zero)
+                        Case(
+                            When(
+                                earned_amount__gt=Coalesce(F("paid_amount"), zero),
+                                then=Coalesce(F("earned_amount"), zero)
+                                - Coalesce(F("paid_amount"), zero),
+                            ),
+                            default=zero,
+                            output_field=DecimalField(
+                                max_digits=20, decimal_places=2
+                            ),
+                        )
+                    ),
+                    zero,
+                )
+            )["total"]
+            or zero
+        )
+        yearly_overpaid_salary_expenses = (
+            SalaryItem.objects.filter(salary__date__year=year).aggregate(
+                total=Coalesce(
+                    Sum(
+                        Case(
+                            When(
+                                paid_amount__gt=Coalesce(F("earned_amount"), zero),
+                                then=Coalesce(F("paid_amount"), zero)
+                                - Coalesce(F("earned_amount"), zero),
+                            ),
+                            default=zero,
+                            output_field=DecimalField(
+                                max_digits=20, decimal_places=2
+                            ),
+                        )
                     ),
                     zero,
                 )
@@ -428,6 +520,7 @@ class Statistics(models.Model):
                 "expense_balance": daily_expense_balance,
                 "salary_expenses": daily_salary_expenses,
                 "unpaid_salary_expenses": daily_unpaid_salary_expenses,
+                "overpaid_salary_expenses": daily_overpaid_salary_expenses,
                 "food_expenses": daily_food_expenses,
                 "unpaid_food_expenses": daily_unpaid_food_expenses,
                 "raw_expenses": daily_raw_expenses,
@@ -449,6 +542,7 @@ class Statistics(models.Model):
                 "expense_balance": monthly_expense_balance,
                 "salary_expenses": monthly_salary_expenses,
                 "unpaid_salary_expenses": monthly_unpaid_salary_expenses,
+                "overpaid_salary_expenses": monthly_overpaid_salary_expenses,
                 "food_expenses": monthly_food_expenses,
                 "unpaid_food_expenses": monthly_unpaid_food_expenses,
                 "raw_expenses": monthly_raw_expenses,
@@ -469,6 +563,7 @@ class Statistics(models.Model):
                 "expense_balance": yearly_expense_balance,
                 "salary_expenses": yearly_salary_expenses,
                 "unpaid_salary_expenses": yearly_unpaid_salary_expenses,
+                "overpaid_salary_expenses": yearly_overpaid_salary_expenses,
                 "food_expenses": yearly_food_expenses,
                 "unpaid_food_expenses": yearly_unpaid_food_expenses,
                 "raw_expenses": yearly_raw_expenses,
