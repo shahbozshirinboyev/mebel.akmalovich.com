@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 from django.db import models
@@ -18,6 +19,175 @@ class Statistics(models.Model):
         managed = False
         verbose_name = "Statistika"
         verbose_name_plural = "Statistika"
+
+    @staticmethod
+    def _zero():
+        return Decimal("0.00")
+
+    @staticmethod
+    def _decimal_output_field():
+        return DecimalField(max_digits=20, decimal_places=2)
+
+    @classmethod
+    def _period_lookup(cls, field_name, target_date, period):
+        if period == "daily":
+            return {field_name: target_date}
+        if period == "monthly":
+            return {
+                f"{field_name}__year": target_date.year,
+                f"{field_name}__month": target_date.month,
+            }
+        if period == "yearly":
+            return {f"{field_name}__year": target_date.year}
+        raise ValueError(f"Noto'g'ri period: {period}")
+
+    @classmethod
+    def _sum_or_zero(cls, queryset, expression, zero):
+        return (
+            queryset.aggregate(total=Coalesce(Sum(expression), zero))["total"]
+            or zero
+        )
+
+    @classmethod
+    def _salary_delta_expression(cls, zero, mode):
+        if mode == "unpaid":
+            return Case(
+                When(
+                    earned_amount__gt=Coalesce(F("paid_amount"), zero),
+                    then=Coalesce(F("earned_amount"), zero)
+                    - Coalesce(F("paid_amount"), zero),
+                ),
+                default=zero,
+                output_field=cls._decimal_output_field(),
+            )
+        if mode == "overpaid":
+            return Case(
+                When(
+                    paid_amount__gt=Coalesce(F("earned_amount"), zero),
+                    then=Coalesce(F("paid_amount"), zero)
+                    - Coalesce(F("earned_amount"), zero),
+                ),
+                default=zero,
+                output_field=cls._decimal_output_field(),
+            )
+        raise ValueError(f"Noto'g'ri salary mode: {mode}")
+
+    @classmethod
+    def _unpaid_expense_expression(cls, zero):
+        return F("quantity") * F("price") - Coalesce(F("paid_amount"), zero)
+
+    @classmethod
+    def get_period_statistics(cls, target_date=None, period="daily"):
+        from account.models import Expense, Income
+        from expenses.models import (
+            ExpensePaymentStatus,
+            FoodItem,
+            OtherExpenseItem,
+            RawItem,
+        )
+        from salary.models import Salary, SalaryItem
+        from sales.models import SaleItem
+
+        zero = cls._zero()
+        target_date = target_date or timezone.localdate()
+
+        income_lookup = cls._period_lookup("date", target_date, period)
+        sale_lookup = cls._period_lookup("sale__date", target_date, period)
+        salary_lookup = cls._period_lookup("date", target_date, period)
+        salary_item_lookup = cls._period_lookup("salary__date", target_date, period)
+        expense_item_lookup = cls._period_lookup("expense__date", target_date, period)
+
+        sale_qs = SaleItem.objects.filter(**sale_lookup)
+        unpaid_sale_qs = sale_qs.exclude(payment_status=SaleItem.PaymentStatus.PAID)
+        salary_qs = Salary.objects.filter(**salary_lookup)
+        salary_item_qs = SalaryItem.objects.filter(**salary_item_lookup)
+        food_qs = FoodItem.objects.filter(**expense_item_lookup)
+        raw_qs = RawItem.objects.filter(**expense_item_lookup)
+        other_qs = OtherExpenseItem.objects.filter(**expense_item_lookup)
+
+        stats = {
+            "income": cls._sum_or_zero(
+                Income.objects.filter(**income_lookup), "income_amount", zero
+            ),
+            "orders_total": cls._sum_or_zero(sale_qs, "total", zero),
+            "paid_orders_amount": cls._sum_or_zero(sale_qs, "buyers_paid", zero),
+            "closed_orders_count": sale_qs.filter(
+                order_status=SaleItem.OrderStatus.CLOSED
+            ).count(),
+            "unpaid_orders_count": unpaid_sale_qs.count(),
+            "unpaid_orders_amount": cls._sum_or_zero(
+                unpaid_sale_qs,
+                F("total") - Coalesce(F("buyers_paid"), zero),
+                zero,
+            ),
+            "open_orders_count": sale_qs.exclude(
+                order_status=SaleItem.OrderStatus.CLOSED
+            ).count(),
+            "expense": cls._sum_or_zero(
+                Expense.objects.filter(**income_lookup), "expense_amount", zero
+            ),
+            "salary_expenses": cls._sum_or_zero(
+                salary_qs, "total_earned_salary", zero
+            ),
+            "unpaid_salary_expenses": cls._sum_or_zero(
+                salary_item_qs,
+                cls._salary_delta_expression(zero, "unpaid"),
+                zero,
+            ),
+            "overpaid_salary_expenses": cls._sum_or_zero(
+                salary_item_qs,
+                cls._salary_delta_expression(zero, "overpaid"),
+                zero,
+            ),
+            "food_expenses": cls._sum_or_zero(
+                food_qs, F("quantity") * F("price"), zero
+            ),
+            "unpaid_food_expenses": cls._sum_or_zero(
+                food_qs.exclude(payment_status=ExpensePaymentStatus.PAID),
+                cls._unpaid_expense_expression(zero),
+                zero,
+            ),
+            "raw_expenses": cls._sum_or_zero(
+                raw_qs, F("quantity") * F("price"), zero
+            ),
+            "unpaid_raw_expenses": cls._sum_or_zero(
+                raw_qs.exclude(payment_status=ExpensePaymentStatus.PAID),
+                cls._unpaid_expense_expression(zero),
+                zero,
+            ),
+            "other_expenses": cls._sum_or_zero(
+                other_qs, F("quantity") * F("price"), zero
+            ),
+            "unpaid_other_expenses": cls._sum_or_zero(
+                other_qs.exclude(payment_status=ExpensePaymentStatus.PAID),
+                cls._unpaid_expense_expression(zero),
+                zero,
+            ),
+        }
+
+        stats["total_expenses"] = (
+            stats["salary_expenses"]
+            + stats["food_expenses"]
+            + stats["raw_expenses"]
+            + stats["other_expenses"]
+        )
+        stats["income_balance"] = stats["income"] - stats["orders_total"]
+        stats["expense_balance"] = stats["expense"] - stats["total_expenses"]
+
+        if period == "monthly":
+            stats["year"] = target_date.year
+            stats["month"] = target_date.month
+        elif period == "yearly":
+            stats["year"] = target_date.year
+
+        return stats
+
+    @classmethod
+    def get_yearly_month_breakdown(cls, target_year):
+        return [
+            cls.get_period_statistics(date(target_year, month, 1), period="monthly")
+            for month in range(1, 13)
+        ]
 
     @classmethod
     def get_statistics(cls, target_date=None):

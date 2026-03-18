@@ -14,6 +14,38 @@
                 localStorage.setItem('activeDashboardTab', serverActiveTab);
             }
 
+            function getDashboardFilters() {
+                return {
+                    daily_date: document.getElementById('id_daily_date')?.value || "{{ daily_date|date:'Y-m-d' }}",
+                    monthly_year: document.getElementById('id_monthly_year')?.value || "{{ monthly_year|unlocalize }}",
+                    monthly_month: document.getElementById('id_monthly_month')?.value || "{{ monthly_month|unlocalize }}",
+                    yearly_year: document.getElementById('id_yearly_year')?.value || "{{ yearly_year|unlocalize }}",
+                };
+            }
+
+            function buildDashboardUrl(overrides = {}) {
+                const url = new URL(window.location.href);
+                const filters = {
+                    ...getDashboardFilters(),
+                    active_tab: document.documentElement.getAttribute('data-active-tab') || 'daily',
+                    ...overrides,
+                };
+
+                Object.entries(filters).forEach(([key, value]) => {
+                    if (value === undefined || value === null || value === '') {
+                        url.searchParams.delete(key);
+                        return;
+                    }
+                    url.searchParams.set(key, value);
+                });
+
+                return url;
+            }
+
+            function navigateDashboard(overrides = {}) {
+                window.location.assign(buildDashboardUrl(overrides));
+            }
+
             // Django'ning mavzularini (Light/Dark/Auto) Tailwind bilan sinxronlash
             function syncTailwindTheme() {
                 const theme = document.documentElement.getAttribute('data-theme');
@@ -158,9 +190,11 @@
                             </div>
                         </div>
 
-                        <form method="post">
-                            {% csrf_token %}
+                        <form method="get">
                             <input type="hidden" name="active_tab" value="daily">
+                            <input type="hidden" name="monthly_year" value="{{ monthly_year|unlocalize }}">
+                            <input type="hidden" name="monthly_month" value="{{ monthly_month|unlocalize }}">
+                            <input type="hidden" name="yearly_year" value="{{ yearly_year|unlocalize }}">
 
                             <div class="flex items-center gap-2">
                                 <label for="id_daily_date" class="text-sm text-slate-500 dark:text-slate-400 font-medium">Sana:</label>
@@ -169,7 +203,7 @@
                                     name="daily_date"
                                     id="id_daily_date"
                                     value="{{ daily_date|date:'Y-m-d' }}"
-                                    onchange="this.form.submit()"
+                                    onchange="navigateDashboard({ active_tab: 'daily', daily_date: this.value })"
                                     class="appearance-none bg-slate-50 dark:bg-[#0f172a] dark:text-white border border-slate-300 dark:border-slate-700 px-2 py-1 rounded-xl text-sm outline-none cursor-pointer focus:ring-2 focus:ring-blue-500 transition-all"
                                 >
                             </div>
@@ -373,6 +407,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
 
                 <div id="tab-monthly" class="tab-content">
@@ -387,50 +422,49 @@
                             </div>
                         </div>
 
-                        <form method="post" class="">
-                            {% csrf_token %}
+                        <form method="get" class="">
                             <div class="flex items-center gap-4">
                                 <input type="hidden" name="active_tab" value="monthly">
+                                <input type="hidden" name="daily_date" value="{{ daily_date|date:'Y-m-d' }}">
+                                <input type="hidden" name="yearly_year" value="{{ yearly_year|unlocalize }}">
 
-                                    <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2">
+                                    <label for="id_monthly_year" class="text-sm text-slate-500 dark:text-slate-400 font-medium">Yil:</label>
 
-                                        <label for="id_monthly_year" class="text-sm text-slate-500 dark:text-slate-400 font-medium">Yil:</label>
-
-                                        <div class="relative inline-block">
-                                            <select name="monthly_year" id="id_monthly_year" onchange="this.form.submit()" class="appearance-none bg-slate-50 dark:bg-[#0f172a] dark:text-white border border-slate-300 dark:border-slate-700 pl-2 pr-8 rounded-xl text-sm outline-none cursor-pointer focus:ring-2 focus:ring-blue-500">
-                                                {% localize off %}
-                                                {% for y in year_choices %}
-                                                    <option value="{{ y }}" {% if y == monthly_year %} selected {% endif %}>{{ y }}</option>
-                                                {% endfor %}
-                                                {% endlocalize %}
-                                            </select>
-                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
-                                                <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                                                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path>
-                                                </svg>
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="flex items-center gap-2">
-                                        <label for="id_monthly_month" class="text-sm text-slate-500 dark:text-slate-400 font-medium">Oy:</label>
-                                        <div class="relative inline-block">
-                                            <select name="monthly_month" id="id_monthly_month" onchange="this.form.submit()" class="appearance-none bg-slate-50 dark:bg-[#0f172a] dark:text-white border border-slate-300 dark:border-slate-700 pl-2 pr-4 rounded-xl text-sm outline-none cursor-pointer focus:ring-2 focus:ring-blue-500">
-                                                {% for m, m_label in month_choices %}
-                                                    <option value="{{ m }}" {% if m == monthly_month %} selected {% endif %}>{{ m_label }}</option>
-                                                {% endfor %}
-                                            </select>
-                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
-                                                <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                                                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path>
-                                                </svg>
-                                            </div>
+                                    <div class="relative inline-block">
+                                        <select name="monthly_year" id="id_monthly_year" onchange="navigateDashboard({ active_tab: 'monthly', monthly_year: document.getElementById('id_monthly_year').value, monthly_month: document.getElementById('id_monthly_month').value })" class="appearance-none bg-slate-50 dark:bg-[#0f172a] dark:text-white border border-slate-300 dark:border-slate-700 pl-2 pr-8 rounded-xl text-sm outline-none cursor-pointer focus:ring-2 focus:ring-blue-500">
+                                            {% localize off %}
+                                            {% for y in year_choices %}
+                                                <option value="{{ y }}" {% if y == monthly_year %} selected {% endif %}>{{ y }}</option>
+                                            {% endfor %}
+                                            {% endlocalize %}
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                                            <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                                                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path>
+                                            </svg>
                                         </div>
                                     </div>
                                 </div>
-                            </form>
-                        </div>
+
+                                <div class="flex items-center gap-2">
+                                    <label for="id_monthly_month" class="text-sm text-slate-500 dark:text-slate-400 font-medium">Oy:</label>
+                                    <div class="relative inline-block">
+                                        <select name="monthly_month" id="id_monthly_month" onchange="navigateDashboard({ active_tab: 'monthly', monthly_year: document.getElementById('id_monthly_year').value, monthly_month: document.getElementById('id_monthly_month').value })" class="appearance-none bg-slate-50 dark:bg-[#0f172a] dark:text-white border border-slate-300 dark:border-slate-700 pl-2 pr-4 rounded-xl text-sm outline-none cursor-pointer focus:ring-2 focus:ring-blue-500">
+                                            {% for m, m_label in month_choices %}
+                                                <option value="{{ m }}" {% if m == monthly_month %} selected {% endif %}>{{ m_label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                                            <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                                                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
 
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                             <div class="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700/60 flex flex-col overflow-hidden hover:shadow-md transition duration-300">
@@ -640,15 +674,17 @@
                                 </div>
                             </div>
 
-                            <form method="post">
-                                {% csrf_token %}
+                            <form method="get">
                                 <input type="hidden" name="active_tab" value="yearly">
+                                <input type="hidden" name="daily_date" value="{{ daily_date|date:'Y-m-d' }}">
+                                <input type="hidden" name="monthly_year" value="{{ monthly_year|unlocalize }}">
+                                <input type="hidden" name="monthly_month" value="{{ monthly_month|unlocalize }}">
 
                                     <div class="flex items-center gap-2">
                                         <label for="id_yearly_year" class="text-sm text-slate-500 dark:text-slate-400 font-medium">Yil:</label>
 
                                         <div class="relative inline-block">
-                                            <select name="yearly_year" id="id_yearly_year" onchange="this.form.submit()" class="appearance-none bg-slate-50 dark:bg-[#0f172a] dark:text-white border border-slate-300 dark:border-slate-700 pl-2 pr-8 rounded-xl text-sm outline-none cursor-pointer focus:ring-2 focus:ring-blue-500 transition-all">
+                                            <select name="yearly_year" id="id_yearly_year" onchange="navigateDashboard({ active_tab: 'yearly', yearly_year: document.getElementById('id_yearly_year').value })" class="appearance-none bg-slate-50 dark:bg-[#0f172a] dark:text-white border border-slate-300 dark:border-slate-700 pl-2 pr-8 rounded-xl text-sm outline-none cursor-pointer focus:ring-2 focus:ring-blue-500 transition-all">
                                                 {% localize off %}
                                                 {% for y in year_choices %}
                                                     <option value="{{ y }}" {% if y == yearly_year %} selected {% endif %}>{{ y }}</option>
@@ -863,6 +899,163 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="rounded-2xl border border-slate-200 dark:border-slate-700/60 overflow-hidden">
+                            <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-800/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">Oylar kesimida</h3>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ yearly_year|unlocalize }}-yil bo'yicha qisqa ko'rinish</p>
+                                </div>
+                                <div class="inline-flex items-center px-3 py-1.5 rounded-xl bg-blue-100/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 font-semibold text-sm">
+                                    <i class="bi bi-grid-3x3-gap mr-2"></i>
+                                    12 oy statistikasi
+                                </div>
+                            </div>
+
+                            <div class="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                                {% for month_stat in yearly_monthly_breakdown %}
+                                    <div class="rounded-2xl border {% if month_stat.is_selected_month %}border-blue-300 dark:border-blue-500/50 ring-2 ring-blue-200/70 dark:ring-blue-500/20{% else %}border-slate-200 dark:border-slate-700/60{% endif %} bg-slate-50/70 dark:bg-slate-800/40 p-5 transition duration-300 hover:shadow-sm">
+                                        <div class="flex items-start justify-between gap-3 mb-4">
+                                            <div>
+                                                <p class="text-base font-bold text-slate-800 dark:text-white">{{ month_stat.month_name }}</p>
+                                                <p class="text-xs text-slate-500 dark:text-slate-400">{{ month_stat.year|unlocalize }}-yil</p>
+                                            </div>
+                                            {% if month_stat.net_result >= 0 %}
+                                                <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 text-xs font-semibold">
+                                                    <i class="bi bi-graph-up-arrow mr-1"></i> Ijobiy
+                                                </span>
+                                            {% else %}
+                                                <span class="inline-flex items-center rounded-full bg-rose-100 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 px-2.5 py-1 text-xs font-semibold">
+                                                    <i class="bi bi-graph-down-arrow mr-1"></i> Salbiy
+                                                </span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div class="rounded-xl bg-white/80 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700/60 p-3">
+                                                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Kirim</p>
+                                                    <p class="text-sm font-bold text-emerald-600 dark:text-emerald-400">{{ month_stat.income|default_if_none:"0"|floatformat:2 }} so'm</p>
+                                                </div>
+                                                <div class="rounded-xl bg-white/80 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700/60 p-3">
+                                                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Chiqim</p>
+                                                    <p class="text-sm font-bold text-rose-600 dark:text-rose-400">{{ month_stat.expense|default_if_none:"0"|floatformat:2 }} so'm</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="rounded-xl bg-white/80 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700/60 p-4">
+                                                <div class="flex items-center gap-2 mb-3">
+                                                    <i class="bi bi-cart-check text-indigo-500"></i>
+                                                    <p class="text-sm font-semibold text-slate-800 dark:text-white">Zakazlar</p>
+                                                </div>
+                                                <div class="space-y-2 text-sm">
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-slate-500 dark:text-slate-400">Jami zakaz</span>
+                                                        <span class="font-semibold text-slate-800 dark:text-white">{{ month_stat.orders_total|default_if_none:"0"|floatformat:2 }} so'm</span>
+                                                    </div>
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-slate-500 dark:text-slate-400">To'langan</span>
+                                                        <span class="font-semibold text-slate-800 dark:text-white">{{ month_stat.paid_orders_amount|default_if_none:"0"|floatformat:2 }} so'm</span>
+                                                    </div>
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-slate-500 dark:text-slate-400">To'lanmagan</span>
+                                                        <span class="font-semibold text-slate-800 dark:text-white">{{ month_stat.unpaid_orders_amount|default_if_none:"0"|floatformat:2 }} so'm</span>
+                                                    </div>
+                                                    <div class="grid grid-cols-3 gap-2 pt-2">
+                                                        <div class="rounded-lg bg-slate-50 dark:bg-slate-800/60 px-2 py-2 text-center">
+                                                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Yopilgan</p>
+                                                            <p class="font-bold text-slate-800 dark:text-white">{{ month_stat.closed_orders_count|default_if_none:"0" }}</p>
+                                                        </div>
+                                                        <div class="rounded-lg bg-slate-50 dark:bg-slate-800/60 px-2 py-2 text-center">
+                                                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Ochiq</p>
+                                                            <p class="font-bold text-slate-800 dark:text-white">{{ month_stat.open_orders_count|default_if_none:"0" }}</p>
+                                                        </div>
+                                                        <div class="rounded-lg bg-slate-50 dark:bg-slate-800/60 px-2 py-2 text-center">
+                                                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Qarzli</p>
+                                                            <p class="font-bold text-slate-800 dark:text-white">{{ month_stat.unpaid_orders_count|default_if_none:"0" }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="rounded-xl bg-white/80 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700/60 p-4">
+                                                <div class="flex items-center gap-2 mb-3">
+                                                    <i class="bi bi-receipt text-rose-500"></i>
+                                                    <p class="text-sm font-semibold text-slate-800 dark:text-white">Xarajatlar</p>
+                                                </div>
+                                                <div class="space-y-2 text-sm">
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-slate-500 dark:text-slate-400">Jami xarajat</span>
+                                                        <span class="font-semibold text-slate-800 dark:text-white">{{ month_stat.total_expenses|default_if_none:"0"|floatformat:2 }} so'm</span>
+                                                    </div>
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-slate-500 dark:text-slate-400">Ish haqi</span>
+                                                        <span class="font-semibold text-slate-800 dark:text-white">{{ month_stat.salary_expenses|default_if_none:"0"|floatformat:2 }} so'm</span>
+                                                    </div>
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-slate-500 dark:text-slate-400">Oziq-ovqat</span>
+                                                        <span class="font-semibold text-slate-800 dark:text-white">{{ month_stat.food_expenses|default_if_none:"0"|floatformat:2 }} so'm</span>
+                                                    </div>
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-slate-500 dark:text-slate-400">Xom-ashyo</span>
+                                                        <span class="font-semibold text-slate-800 dark:text-white">{{ month_stat.raw_expenses|default_if_none:"0"|floatformat:2 }} so'm</span>
+                                                    </div>
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-slate-500 dark:text-slate-400">Boshqa</span>
+                                                        <span class="font-semibold text-slate-800 dark:text-white">{{ month_stat.other_expenses|default_if_none:"0"|floatformat:2 }} so'm</span>
+                                                    </div>
+                                                    <div class="pt-2 border-t border-slate-200 dark:border-slate-700/60">
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-slate-500 dark:text-slate-400">Xarajat qarzi</span>
+                                                            <span class="font-semibold text-slate-800 dark:text-white">{{ month_stat.expense_debt_total|default_if_none:"0"|floatformat:2 }} so'm</span>
+                                                        </div>
+                                                        <div class="mt-2 grid grid-cols-2 gap-2 text-xs">
+                                                            <div class="rounded-lg bg-slate-50 dark:bg-slate-800/60 px-2 py-2">
+                                                                <p class="text-slate-500 dark:text-slate-400">Qarz ish haqi</p>
+                                                                <p class="font-bold text-slate-800 dark:text-white">{{ month_stat.unpaid_salary_expenses|default_if_none:"0"|floatformat:2 }}</p>
+                                                            </div>
+                                                            <div class="rounded-lg bg-slate-50 dark:bg-slate-800/60 px-2 py-2">
+                                                                <p class="text-slate-500 dark:text-slate-400">Ortiqcha ish haqi</p>
+                                                                <p class="font-bold text-slate-800 dark:text-white">{{ month_stat.overpaid_salary_expenses|default_if_none:"0"|floatformat:2 }}</p>
+                                                            </div>
+                                                            <div class="rounded-lg bg-slate-50 dark:bg-slate-800/60 px-2 py-2">
+                                                                <p class="text-slate-500 dark:text-slate-400">Qarz oziq-ovqat</p>
+                                                                <p class="font-bold text-slate-800 dark:text-white">{{ month_stat.unpaid_food_expenses|default_if_none:"0"|floatformat:2 }}</p>
+                                                            </div>
+                                                            <div class="rounded-lg bg-slate-50 dark:bg-slate-800/60 px-2 py-2">
+                                                                <p class="text-slate-500 dark:text-slate-400">Qarz xom-ashyo</p>
+                                                                <p class="font-bold text-slate-800 dark:text-white">{{ month_stat.unpaid_raw_expenses|default_if_none:"0"|floatformat:2 }}</p>
+                                                            </div>
+                                                            <div class="rounded-lg bg-slate-50 dark:bg-slate-800/60 px-2 py-2 col-span-2">
+                                                                <p class="text-slate-500 dark:text-slate-400">Qarz boshqa xarajatlar</p>
+                                                                <p class="font-bold text-slate-800 dark:text-white">{{ month_stat.unpaid_other_expenses|default_if_none:"0"|floatformat:2 }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="pt-3 border-t border-slate-200 dark:border-slate-700/60 space-y-2">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-sm font-medium text-slate-600 dark:text-slate-300">Kirim qoldiq</span>
+                                                    <span class="text-sm font-bold text-slate-800 dark:text-white">{{ month_stat.income_balance|default_if_none:"0"|floatformat:2 }} so'm</span>
+                                                </div>
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-sm font-medium text-slate-600 dark:text-slate-300">Chiqim qoldiq</span>
+                                                    <span class="text-sm font-bold text-slate-800 dark:text-white">{{ month_stat.expense_balance|default_if_none:"0"|floatformat:2 }} so'm</span>
+                                                </div>
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-sm font-medium text-slate-600 dark:text-slate-300">Sof natija</span>
+                                                    <span class="text-base font-bold {% if month_stat.net_result >= 0 %}text-emerald-600 dark:text-emerald-400{% else %}text-rose-600 dark:text-rose-400{% endif %}">
+                                                        {{ month_stat.net_result|default_if_none:"0"|floatformat:2 }} so'm
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
 
                     <script>
@@ -873,9 +1066,7 @@
                                 input.value = tabName;
                             });
 
-                            const url = new URL(window.location.href);
-                            url.searchParams.set('active_tab', tabName);
-                            window.history.replaceState({}, '', url);
+                            window.history.replaceState({}, '', buildDashboardUrl({ active_tab: tabName }));
                         }
                     </script>
 

@@ -26,6 +26,15 @@ class StatisticsAdmin(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         today = timezone.localdate()
         valid_tabs = {"daily", "monthly", "yearly"}
+        custom_query_params = {
+            "daily_date",
+            "monthly_year",
+            "monthly_month",
+            "yearly_year",
+            "active_tab",
+            "e",
+        }
+        params = request.GET if request.GET else request.POST
 
         def _parse_int(value, default):
             if value is None:
@@ -45,52 +54,39 @@ class StatisticsAdmin(admin.ModelAdmin):
             except (TypeError, ValueError):
                 return default
 
+        def _parse_month(value, default):
+            parsed_value = _parse_int(value, default)
+            if 1 <= parsed_value <= 12:
+                return parsed_value
+            return default
+
         def _parse_active_tab(value, default):
             if value in valid_tabs:
                 return value
             return default
 
-        if request.method == "POST":
-            daily_date = _parse_date(
-                request.POST.get("daily_date"), today
-            )
-            monthly_year = _parse_int(
-                request.POST.get("monthly_year"), today.year
-            )
-            monthly_month = _parse_int(
-                request.POST.get("monthly_month"), today.month
-            )
-            yearly_year = _parse_int(
-                request.POST.get("yearly_year"), today.year
-            )
-            active_tab = _parse_active_tab(
-                request.POST.get("active_tab"), "daily"
-            )
-        else:
-            daily_date = today
-            monthly_year = today.year
-            monthly_month = today.month
-            yearly_year = today.year
-            active_tab = _parse_active_tab(
-                request.GET.get("active_tab"), ""
-            )
+        daily_date = _parse_date(params.get("daily_date"), today)
+        monthly_year = _parse_int(params.get("monthly_year"), today.year)
+        monthly_month = _parse_month(params.get("monthly_month"), today.month)
+        yearly_year = _parse_int(params.get("yearly_year"), today.year)
+        active_tab = _parse_active_tab(params.get("active_tab"), "")
 
-        # Asosiy statistika (tanlangan kun uchun)
-        base_stats = Statistics.get_statistics(daily_date)
+        base_stats = {
+            "date": daily_date,
+            "daily": Statistics.get_period_statistics(daily_date, period="daily"),
+        }
 
-        # Oylik statistika tanlangan oy/yil bo'yicha
         try:
             monthly_date = date(monthly_year, monthly_month, 1)
         except ValueError:
-            monthly_date = today
-        monthly_stats = Statistics.get_statistics(monthly_date)["monthly"]
+            monthly_date = date(today.year, today.month, 1)
+        monthly_stats = Statistics.get_period_statistics(monthly_date, period="monthly")
 
-        # Yillik statistika tanlangan yil bo'yicha
         try:
             yearly_date = date(yearly_year, 1, 1)
         except ValueError:
-            yearly_date = today
-        yearly_stats = Statistics.get_statistics(yearly_date)["yearly"]
+            yearly_date = date(today.year, 1, 1)
+        yearly_stats = Statistics.get_period_statistics(yearly_date, period="yearly")
 
         base_stats["monthly"] = monthly_stats
         base_stats["yearly"] = yearly_stats
@@ -119,6 +115,37 @@ class StatisticsAdmin(admin.ModelAdmin):
         ]
         month_names = dict(context["month_choices"])
         context["monthly_month_name"] = month_names.get(monthly_month)
+        context["yearly_monthly_breakdown"] = []
+        for month_stats, (_, month_name) in zip(
+            Statistics.get_yearly_month_breakdown(yearly_year),
+            context["month_choices"],
+        ):
+            month_number = month_stats["month"]
+            month_stats["month_name"] = month_name
+            month_stats["net_result"] = (
+                month_stats["orders_total"] - month_stats["total_expenses"]
+            )
+            month_stats["expense_debt_total"] = (
+                month_stats["unpaid_salary_expenses"]
+                + month_stats["unpaid_food_expenses"]
+                + month_stats["unpaid_raw_expenses"]
+                + month_stats["unpaid_other_expenses"]
+            )
+            month_stats["is_selected_month"] = (
+                yearly_year == monthly_year and month_number == monthly_month
+            )
+            context["yearly_monthly_breakdown"].append(month_stats)
+
+        if request.method == "GET":
+            sanitized_get = request.GET.copy()
+            changed = False
+            for key in custom_query_params:
+                if key in sanitized_get:
+                    sanitized_get.pop(key, None)
+                    changed = True
+            if changed:
+                request.GET = sanitized_get
+                request.META["QUERY_STRING"] = sanitized_get.urlencode()
 
         return super().changelist_view(request, extra_context=context)
 
