@@ -86,7 +86,19 @@ class Statistics(models.Model):
         # Ish haqi
         daily_salary_expenses = (
             Salary.objects.filter(date=today).aggregate(
-                total=Coalesce(Sum("total_paid_salary"), zero)
+                total=Coalesce(Sum("total_earned_salary"), zero)
+            )["total"]
+            or zero
+        )
+        daily_unpaid_salary_expenses = (
+            SalaryItem.objects.filter(salary__date=today).aggregate(
+                total=Coalesce(
+                    Sum(
+                        Coalesce(F("earned_amount"), zero)
+                        - Coalesce(F("paid_amount"), zero)
+                    ),
+                    zero,
+                )
             )["total"]
             or zero
         )
@@ -208,7 +220,21 @@ class Statistics(models.Model):
 
         monthly_salary_expenses = (
             Salary.objects.filter(date__year=year, date__month=month).aggregate(
-                total=Coalesce(Sum("total_paid_salary"), zero)
+                total=Coalesce(Sum("total_earned_salary"), zero)
+            )["total"]
+            or zero
+        )
+        monthly_unpaid_salary_expenses = (
+            SalaryItem.objects.filter(
+                salary__date__year=year, salary__date__month=month
+            ).aggregate(
+                total=Coalesce(
+                    Sum(
+                        Coalesce(F("earned_amount"), zero)
+                        - Coalesce(F("paid_amount"), zero)
+                    ),
+                    zero,
+                )
             )["total"]
             or zero
         )
@@ -320,7 +346,19 @@ class Statistics(models.Model):
 
         yearly_salary_expenses = (
             Salary.objects.filter(date__year=year).aggregate(
-                total=Coalesce(Sum("total_paid_salary"), zero)
+                total=Coalesce(Sum("total_earned_salary"), zero)
+            )["total"]
+            or zero
+        )
+        yearly_unpaid_salary_expenses = (
+            SalaryItem.objects.filter(salary__date__year=year).aggregate(
+                total=Coalesce(
+                    Sum(
+                        Coalesce(F("earned_amount"), zero)
+                        - Coalesce(F("paid_amount"), zero)
+                    ),
+                    zero,
+                )
             )["total"]
             or zero
         )
@@ -389,6 +427,7 @@ class Statistics(models.Model):
                 "income_balance": daily_income_balance,
                 "expense_balance": daily_expense_balance,
                 "salary_expenses": daily_salary_expenses,
+                "unpaid_salary_expenses": daily_unpaid_salary_expenses,
                 "food_expenses": daily_food_expenses,
                 "unpaid_food_expenses": daily_unpaid_food_expenses,
                 "raw_expenses": daily_raw_expenses,
@@ -409,6 +448,7 @@ class Statistics(models.Model):
                 "income_balance": monthly_income_balance,
                 "expense_balance": monthly_expense_balance,
                 "salary_expenses": monthly_salary_expenses,
+                "unpaid_salary_expenses": monthly_unpaid_salary_expenses,
                 "food_expenses": monthly_food_expenses,
                 "unpaid_food_expenses": monthly_unpaid_food_expenses,
                 "raw_expenses": monthly_raw_expenses,
@@ -428,6 +468,7 @@ class Statistics(models.Model):
                 "income_balance": yearly_income_balance,
                 "expense_balance": yearly_expense_balance,
                 "salary_expenses": yearly_salary_expenses,
+                "unpaid_salary_expenses": yearly_unpaid_salary_expenses,
                 "food_expenses": yearly_food_expenses,
                 "unpaid_food_expenses": yearly_unpaid_food_expenses,
                 "raw_expenses": yearly_raw_expenses,
