@@ -1,11 +1,31 @@
 from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.db.models.functions import Lower, Trim
 from django.utils.formats import number_format
 import uuid
 
+class UniqueNamedModel(models.Model):
+    name_field = None
+
+    class Meta:
+        abstract = True
+
+    def clean(self):
+        super().clean()
+        if self.name_field:
+            value = getattr(self, self.name_field, "")
+            if isinstance(value, str):
+                setattr(self, self.name_field, value.strip())
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+
 # FoodProducts va RawMaterials alohida qolmoqda
-class FoodProducts(models.Model):
+class FoodProducts(UniqueNamedModel):
+    name_field = "food_product_name"
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     food_product_name = models.CharField(max_length=255, verbose_name="Oziq-ovqat nomi")
     measurement_unit = models.CharField(max_length=64, blank=True, verbose_name="O'lchov birligi")
@@ -15,11 +35,20 @@ class FoodProducts(models.Model):
         verbose_name = "Oziq-ovqat "
         verbose_name_plural = "Oziq-ovqatlar "
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                Lower(Trim("food_product_name")),
+                name="expenses_foodproducts_name_unique_ci",
+                violation_error_message="Bu oziq-ovqat nomi allaqachon mavjud.",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.food_product_name} ({self.measurement_unit})"
 
-class RawMaterials(models.Model):
+
+class RawMaterials(UniqueNamedModel):
+    name_field = "raw_material_name"
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     raw_material_name = models.CharField(max_length=255, verbose_name="Xom-ashyo nomi")
     measurement_unit = models.CharField(max_length=64, blank=True, verbose_name="O'lchov birligi")
@@ -29,12 +58,20 @@ class RawMaterials(models.Model):
         verbose_name = "Xom-ashyo "
         verbose_name_plural = "Xom-ashyolar "
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                Lower(Trim("raw_material_name")),
+                name="expenses_rawmaterials_name_unique_ci",
+                violation_error_message="Bu xom-ashyo nomi allaqachon mavjud.",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.raw_material_name} ({self.measurement_unit})"
 
 
-class OtherExpenseTypes(models.Model):
+class OtherExpenseTypes(UniqueNamedModel):
+    name_field = "expense_type_name"
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     expense_type_name = models.CharField(max_length=255, verbose_name="Xarajat turi nomi")
     measurement_unit = models.CharField(max_length=64, blank=True, verbose_name="O'lchov birligi")
@@ -44,6 +81,13 @@ class OtherExpenseTypes(models.Model):
         verbose_name = "Boshqa xarajat turi "
         verbose_name_plural = "Boshqa xarajat turlari "
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                Lower(Trim("expense_type_name")),
+                name="expenses_otherexpensetypes_name_unique_ci",
+                violation_error_message="Bu xarajat turi nomi allaqachon mavjud.",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.expense_type_name} ({self.measurement_unit})"

@@ -86,3 +86,23 @@ class ExpenseItemPaymentStatusTests(TestCase):
         self.expense.refresh_from_db()
 
         self.assertEqual(self.expense.total_cost, Decimal("110"))
+
+
+class ExpenseReferenceNameUniquenessTests(TestCase):
+    def test_reference_names_must_be_unique_case_insensitive(self):
+        cases = [
+            (FoodProducts, "food_product_name", " Non ", "non"),
+            (RawMaterials, "raw_material_name", " Temir ", "temir"),
+            (OtherExpenseTypes, "expense_type_name", " Elektr energiya ", "elektr energiya"),
+        ]
+
+        for model_class, field_name, initial_value, duplicate_value in cases:
+            with self.subTest(model=model_class.__name__):
+                model_class.objects.create(**{field_name: initial_value, "measurement_unit": "kg"})
+
+                duplicate = model_class(
+                    **{field_name: duplicate_value, "measurement_unit": "kg"},
+                )
+
+                with self.assertRaises(ValidationError):
+                    duplicate.save()
