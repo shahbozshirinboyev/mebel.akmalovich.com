@@ -68,7 +68,7 @@ def database_config():
             "NAME": unquote(parsed.path.lstrip("/")),
             "USER": unquote(parsed.username or ""),
             "PASSWORD": unquote(parsed.password or ""),
-            "HOST": parsed.hostname or "127.0.0.1",
+            "HOST": parsed.hostname or "*",
             "PORT": str(parsed.port or "5432"),
             "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
             "CONN_HEALTH_CHECKS": True,
@@ -79,7 +79,7 @@ def database_config():
         "NAME": os.getenv("DB_NAME", "mebel_akmalovich_db"),
         "USER": os.getenv("DB_USER", "postgres"),
         "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
-        "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+        "HOST": os.getenv("DB_HOST", "*"),
         "PORT": os.getenv("DB_PORT", "5432"),
         "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
         "CONN_HEALTH_CHECKS": True,
@@ -94,10 +94,7 @@ if not SECRET_KEY:
     else:
         raise ImproperlyConfigured("SECRET_KEY environment variable is required.")
 
-ALLOWED_HOSTS = env_list(
-    "ALLOWED_HOSTS",
-    ["mebel.akmalovich.com", "www.mebel.akmalovich.com", "localhost", "127.0.0.1"] if DEBUG else [],
-)
+ALLOWED_HOSTS = ['*']
 if not DEBUG and not ALLOWED_HOSTS:
     raise ImproperlyConfigured("ALLOWED_HOSTS environment variable is required when DEBUG is False.")
 
@@ -108,7 +105,7 @@ CSRF_TRUSTED_ORIGINS = env_list(
         "https://www.mebel.akmalovich.com",
         "http://localhost",
         "http://127.0.0.1",
-    ] if DEBUG else [],
+    ]
 )
 
 
