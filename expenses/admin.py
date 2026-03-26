@@ -169,7 +169,7 @@ class FoodItemAdmin(ExportMixin, admin.ModelAdmin):
 
 	def save_model(self, request, obj, form, change):
 		super().save_model(request, obj, form, change)
-		
+
 		# FoodItem saqlangandan keyin tegishli Expenses ning total_cost ni yangilash
 		if obj.expense:
 			obj.expense.update_total_cost()
@@ -190,7 +190,7 @@ class RawItemAdmin(ExportMixin, admin.ModelAdmin):
 
 	def save_model(self, request, obj, form, change):
 		super().save_model(request, obj, form, change)
-		
+
 		# RawItem saqlangandan keyin tegishli Expenses ning total_cost ni yangilash
 		if obj.expense:
 			obj.expense.update_total_cost()
@@ -237,7 +237,7 @@ class FoodItemInline(admin.TabularInline):
         if obj.pk:
             return number_format(obj.total_item_price, decimal_pos=2, use_l10n=True)
         return '<span class="total-item-price-display">0.00</span>'
-    total_item_price_display.short_description = "Total Price"
+    total_item_price_display.short_description = "Umumiy narx"
     total_item_price_display.allow_tags = True
 
 class RawItemInline(admin.TabularInline):
@@ -255,7 +255,7 @@ class RawItemInline(admin.TabularInline):
         if obj.pk:
             return number_format(obj.total_item_price, decimal_pos=2, use_l10n=True)
         return '<span class="total-item-price-display">0.00</span>'
-    total_item_price_display.short_description = "Total Price"
+    total_item_price_display.short_description = "Umumiy narx"
     total_item_price_display.allow_tags = True
 
 
@@ -274,7 +274,7 @@ class OtherExpenseItemInline(admin.TabularInline):
         if obj.pk:
             return number_format(obj.total_item_price, decimal_pos=2, use_l10n=True)
         return '<span class="total-item-price-display">0.00</span>'
-    total_item_price_display.short_description = "Total Price"
+    total_item_price_display.short_description = "Umumiy narx"
     total_item_price_display.allow_tags = True
 
 # --- Expenses Admin ---
@@ -327,7 +327,7 @@ class ExpensesMonthFilter(admin.SimpleListFilter):
 
 @admin.register(Expenses)
 class ExpensesAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('date', 'created_by', 'total_cost', 'description', 'created_at')
+    list_display = ('date', 'total_cost', 'description', 'created_by', 'created_at')
     list_filter = (ExpensesYearFilter, ExpensesMonthFilter)
     # search_fields = ('description',)
     inlines = [FoodItemInline, RawItemInline, OtherExpenseItemInline]
@@ -351,17 +351,17 @@ class ExpensesAdmin(ExportMixin, admin.ModelAdmin):
         """
         instances = formset.save(commit=False)
         deleted_instances = formset.deleted_objects
-        
+
         # O'chirilgan itemlarni saqlash
         for obj in deleted_instances:
             obj.delete()
-        
+
         # Yangi va o'zgartirilgan itemlarni saqlash
         for instance in instances:
             instance.save()
-        
+
         formset.save_m2m()
-        
+
         # Asosiy Expense obyektini yangilash
         form.instance.update_total_cost()
         return instances
