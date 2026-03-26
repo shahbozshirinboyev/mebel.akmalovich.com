@@ -86,7 +86,7 @@ def database_config():
     }
 
 
-DEBUG = env_bool("DEBUG", False)
+DEBUG = env_bool("DEBUG")
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     if DEBUG:
