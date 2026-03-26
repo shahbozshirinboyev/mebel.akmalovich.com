@@ -97,7 +97,7 @@ class Expenses(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Yaratgan foydalanuvchi")
     date = models.DateField(unique=True, verbose_name="Sana")
-    total_cost = models.DecimalField(max_digits=20, decimal_places=2, default=0, editable=False, verbose_name="Umumiy summa")
+    total_cost = models.DecimalField(max_digits=20, decimal_places=2, default=0, editable=False, verbose_name="Umumiy xarajat")
     description = models.TextField(blank=True, verbose_name="Tavsif")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Yaratilgan sana")
 
@@ -118,14 +118,17 @@ class Expenses(models.Model):
     @property
     def food_items_total(self):
         return sum(item.total_item_price for item in self.food_items.all())
+    food_items_total.fget.short_description = "Oziq-ovqat xarajatlari"
 
     @property
     def raw_items_total(self):
         return sum(item.total_item_price for item in self.raw_items.all())
+    raw_items_total.fget.short_description = "Xom-ashyo xarajatlari"
 
     @property
     def other_items_total(self):
         return sum(item.total_item_price for item in self.other_items.all())
+    other_items_total.fget.short_description = "Boshqa xarajatlar"
 
     class Meta:
         verbose_name = "Xarajat "
@@ -133,7 +136,7 @@ class Expenses(models.Model):
         ordering = ['date']
 
     def __str__(self):
-        return f"Expense - {self.date}"
+        return f"Xarajatlar - {self.date}"
 
 
 class ExpensePaymentStatus(models.TextChoices):
