@@ -130,6 +130,7 @@ class Expenses(models.Model):
     class Meta:
         verbose_name = "Xarajat "
         verbose_name_plural = "Xarajatlar "
+        ordering = ['date']
 
     def __str__(self):
         return f"Expense - {self.date}"
