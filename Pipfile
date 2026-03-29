@@ -6,13 +6,14 @@ name = "pypi"
 [packages]
 waitress = "*"
 python-dotenv = "*"
-whitenoise = "*"
 psycopg = {extras = ["binary"], version = "*"}
-django = "*"
-django-import-export = "*"
 openpyxl = "*"
+python-decouple = "*"
+django = "==4.2"
+django-import-export = "==3.3.9"
+whitenoise = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.14"
+python_version = "3.13"

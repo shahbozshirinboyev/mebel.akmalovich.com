@@ -1,67 +1,42 @@
-"""
-Django settings for config project.
-"""
-
 from pathlib import Path
-from urllib.parse import unquote, urlparse
-import os
-
+from decouple import config, Csv
+from urllib.parse import urlparse, unquote
 from django.core.exceptions import ImproperlyConfigured
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# ======================
+# BASIC SETTINGS
+# ======================
+SECRET_KEY = config("SECRET_KEY", default=None)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-try:
-    from dotenv import load_dotenv
-except ImportError:  # pragma: no cover - optional in some environments
-    load_dotenv = None
-
-
-def load_local_env():
-    env_file = BASE_DIR / ".env"
-    if not env_file.exists():
-        return
-
-    for raw_line in env_file.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        os.environ[key.strip()] = value.strip().strip("\"'")
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="http://localhost,http://127.0.0.1",
+    cast=Csv()
+)
 
 
-if load_dotenv:
-    load_dotenv(override=True)
-else:
-    load_local_env()
-
-
-def env_bool(name, default=False):
-    value = os.getenv(name)
-    if value is None:
-        return default
-    return value.strip().lower() in {"1", "true", "yes", "on"}
-
-
-def env_list(name, default=None):
-    value = os.getenv(name)
-    if value is None:
-        return list(default or [])
-    return [item.strip() for item in value.split(",") if item.strip()]
-
-
+# ======================
+# DATABASE
+# ======================
 def database_config():
-    database_url = os.getenv("DATABASE_URL")
+    database_url = config("DATABASE_URL", default=None)
+
     if database_url:
         parsed = urlparse(database_url)
+
         engine_map = {
             "postgres": "django.db.backends.postgresql",
             "postgresql": "django.db.backends.postgresql",
         }
+
         engine = engine_map.get(parsed.scheme)
         if not engine:
-            raise ImproperlyConfigured("Unsupported DATABASE_URL scheme.")
+            raise ImproperlyConfigured("Unsupported DATABASE_URL scheme")
 
         return {
             "ENGINE": engine,
@@ -70,48 +45,30 @@ def database_config():
             "PASSWORD": unquote(parsed.password or ""),
             "HOST": parsed.hostname or "127.0.0.1",
             "PORT": str(parsed.port or "5432"),
-            "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
+            "CONN_MAX_AGE": config("DB_CONN_MAX_AGE", default=60, cast=int),
             "CONN_HEALTH_CHECKS": True,
         }
 
     return {
-        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
-        "NAME": os.getenv("DB_NAME", "mebel_akmalovich_db"),
-        "USER": os.getenv("DB_USER", "postgres"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
-        "HOST": os.getenv("DB_HOST", "127.0.0.1"),
-        "PORT": os.getenv("DB_PORT", "5432"),
-        "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
+        "ENGINE": config("DB_ENGINE", default="django.db.backends.postgresql"),
+        "NAME": config("DB_NAME", default="postgres"),
+        "USER": config("DB_USER", default="postgres"),
+        "PASSWORD": config("DB_PASSWORD", default="postgres"),
+        "HOST": config("DB_HOST", default="127.0.0.1"),
+        "PORT": config("DB_PORT", default="5432"),
+        "CONN_MAX_AGE": config("DB_CONN_MAX_AGE", default=60, cast=int),
         "CONN_HEALTH_CHECKS": True,
     }
 
 
-DEBUG = env_bool("DEBUG")
-SECRET_KEY = os.getenv("SECRET_KEY")
-if not SECRET_KEY:
-    if DEBUG:
-        SECRET_KEY = "django-insecure-dev-only-secret-key"
-    else:
-        raise ImproperlyConfigured("SECRET_KEY environment variable is required.")
-
-ALLOWED_HOSTS = env_list(
-    "ALLOWED_HOSTS",
-    ["mebel.akmalovich.com", "www.mebel.akmalovich.com", "localhost", "127.0.0.1"] if DEBUG else [],
-)
-if not DEBUG and not ALLOWED_HOSTS:
-    raise ImproperlyConfigured("ALLOWED_HOSTS environment variable is required when DEBUG is False.")
-
-CSRF_TRUSTED_ORIGINS = env_list(
-    "CSRF_TRUSTED_ORIGINS",
-    [
-        "https://mebel.akmalovich.com",
-        "https://www.mebel.akmalovich.com",
-        "http://localhost",
-        "http://127.0.0.1",
-    ] if DEBUG else [],
-)
+DATABASES = {
+    "default": database_config()
+}
 
 
+# ======================
+# APPS
+# ======================
 INSTALLED_APPS = [
     "config.admin_apps.CustomAdminConfig",
     "import_export",
@@ -126,10 +83,16 @@ INSTALLED_APPS = [
     "sales",
     "account.apps.AccountConfig",
     "expenses",
+    "whitenoise.runserver_nostatic",
 ]
 
+
+# ======================
+# MIDDLEWARE
+# ======================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -139,8 +102,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "config.urls"
 
+# ======================
+# CORE
+# ======================
+ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -158,57 +124,65 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DATABASES = {
-    "default": database_config(),
-}
 
-
+# ======================
+# AUTH
+# ======================
+AUTH_USER_MODEL = "users.User"
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-AUTH_USER_MODEL = "users.User"
 
-
+# ======================
+# INTERNATIONAL
+# ======================
 LANGUAGE_CODE = "uz"
 LANGUAGES = [("uz", "O'zbek")]
+
 TIME_ZONE = "Asia/Tashkent"
+
 USE_I18N = True
 USE_TZ = True
 
 
+# ======================
+# STATIC
+# ======================
 STATIC_URL = "/static/"
+
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
-USE_THOUSAND_SEPARATOR = True
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
-
+# ======================
+# SECURITY (PRODUCTION)
+# ======================
 if not DEBUG:
     MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", True)
-    SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000"))
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", True)
-    SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", True)
-    SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", True)
-    CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", True)
+    SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
+
+    SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=31536000, cast=int)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = config("SECURE_HSTS_INCLUDE_SUBDOMAINS", default=True, cast=bool)
+    SECURE_HSTS_PRELOAD = config("SECURE_HSTS_PRELOAD", default=True, cast=bool)
+
+    SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=True, cast=bool)
+    CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=True, cast=bool)
+
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = "DENY"
     SECURE_REFERRER_POLICY = "same-origin"
+
     STORAGES = {
         "default": {
             "BACKEND": "django.core.files.storage.FileSystemStorage",
