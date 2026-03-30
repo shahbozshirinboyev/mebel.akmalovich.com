@@ -115,6 +115,11 @@ class WorkerDashboardView(LoginRequiredMixin, View):
 			total_earned=Coalesce(Sum("earned_amount"), zero),
 			total_paid=Coalesce(Sum("paid_amount"), zero),
 		)
+		year_totals = year_items.aggregate(
+			total_earned=Coalesce(Sum("earned_amount"), zero),
+			total_paid=Coalesce(Sum("paid_amount"), zero),
+		)
+		year_difference = (year_totals["total_earned"] or zero) - (year_totals["total_paid"] or zero)
 		monthly_totals = {
 			item["salary__date__month"]: {
 				"earned": item["total_earned"] or zero,
@@ -130,6 +135,7 @@ class WorkerDashboardView(LoginRequiredMixin, View):
 				"date": item["salary__date"],
 				"earned": item["total_earned"] or zero,
 				"paid": item["total_paid"] or zero,
+				"difference": (item["total_earned"] or zero) - (item["total_paid"] or zero),
 			}
 			for item in daily_totals
 		]
@@ -139,6 +145,8 @@ class WorkerDashboardView(LoginRequiredMixin, View):
 				"month_name": month_name,
 				"earned": monthly_totals.get(month_number, {}).get("earned", zero),
 				"paid": monthly_totals.get(month_number, {}).get("paid", zero),
+				"difference": monthly_totals.get(month_number, {}).get("earned", zero)
+				- monthly_totals.get(month_number, {}).get("paid", zero),
 				"is_selected_month": month_number == selected_month,
 			}
 			for month_number, month_name in months
@@ -152,6 +160,9 @@ class WorkerDashboardView(LoginRequiredMixin, View):
 			"balance": (employee.base_salary or zero) + (totals["total_earned"] or zero) - (totals["total_paid"] or zero),
 			"daily_rows": daily_rows,
 			"monthly_rows": monthly_rows,
+			"year_total_earned": year_totals["total_earned"] or zero,
+			"year_total_paid": year_totals["total_paid"] or zero,
+			"year_difference": year_difference or zero,
 			"selected_year": selected_year,
 			"selected_month": selected_month,
 			"selected_month_name": month_names[selected_month - 1],

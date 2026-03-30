@@ -124,10 +124,14 @@
       </section>
 
       <section class="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <h2 class="m-0 border-b border-slate-200 px-3 py-3 text-[15px] font-medium md:px-4 md:py-3.5 md:text-base">
-          {% localize off %}{{ selected_year }}{% endlocalize %},
-          {{ selected_month_name }}
-        </h2>
+        <div class="border-b border-slate-200 px-3 py-3 md:px-4 md:py-3.5">
+          <h2 class="m-0 text-[15px] font-medium md:text-base">
+            {% localize off %}{{ selected_year }}{% endlocalize %},
+            {{ selected_month_name }}
+          </h2>
+          <p class="mt-1 text-xs text-slate-500 md:text-sm">Tanlangan oy uchun har bir kunning umumiy ish haqi ko'rinishi.</p>
+        </div>
+        
         {% if daily_rows %}
           <table class="w-full table-fixed border-collapse md:table-auto">
             <thead>
@@ -135,6 +139,7 @@
                 <th class="bg-slate-50 px-2 py-2 text-left text-xs font-bold text-slate-600 md:px-3 md:py-2.5 md:text-sm">Sana</th>
                 <th class="bg-slate-50 px-2 py-2 text-left text-xs font-bold text-slate-600 md:px-3 md:py-2.5 md:text-sm">Hisoblangan</th>
                 <th class="bg-slate-50 px-2 py-2 text-left text-xs font-bold text-slate-600 md:px-3 md:py-2.5 md:text-sm">To'langan</th>
+                <th class="bg-slate-50 px-2 py-2 text-left text-xs font-bold text-slate-600 md:px-3 md:py-2.5 md:text-sm">Farq</th>
               </tr>
             </thead>
             <tbody>
@@ -147,13 +152,17 @@
                   <td class="border-b border-slate-100 px-2 py-2 text-xs break-words last:border-b-0 md:px-3 md:py-2.5 md:text-sm">
                     {{ row.paid|floatformat:"2g" }} <span class="text-[10px] font-semibold text-slate-500 md:text-xs">so'm</span>
                   </td>
+                  <td class="border-b border-slate-100 px-2 py-2 text-xs break-words last:border-b-0 md:px-3 md:py-2.5 md:text-sm {% if row.difference >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
+                    {% if row.difference >= 0 %}+{% endif %}{{ row.difference|floatformat:"2g" }}
+                    <span class="text-[10px] font-semibold text-slate-500 md:text-xs">so'm</span>
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         {% else %}
           <div class="m-3.5 rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-rose-900">
-            Sizda bu oy uchun ish haqqi yozilmagan.
+            Sizda bu oy uchun ish haqi yozilmagan.
           </div>
         {% endif %}
       </section>
@@ -172,6 +181,7 @@
                 <th class="bg-slate-50 px-3 py-2 text-left text-xs font-bold text-slate-600 md:px-4 md:py-2.5 md:text-sm">Oy</th>
                 <th class="bg-slate-50 px-3 py-2 text-left text-xs font-bold text-slate-600 md:px-4 md:py-2.5 md:text-sm">Hisoblangan</th>
                 <th class="bg-slate-50 px-3 py-2 text-left text-xs font-bold text-slate-600 md:px-4 md:py-2.5 md:text-sm">To'langan</th>
+                <th class="bg-slate-50 px-3 py-2 text-left text-xs font-bold text-slate-600 md:px-4 md:py-2.5 md:text-sm">Farq</th>
               </tr>
             </thead>
             <tbody>
@@ -191,8 +201,50 @@
                   <td class="border-b border-slate-100 px-3 py-2 text-xs text-slate-700 last:border-b-0 md:px-4 md:py-2.5 md:text-sm">
                     {{ row.paid|floatformat:"2g" }} <span class="text-[10px] font-semibold text-slate-500 md:text-xs">so'm</span>
                   </td>
+                  <td class="border-b border-slate-100 px-3 py-2 text-xs last:border-b-0 md:px-4 md:py-2.5 md:text-sm {% if row.difference >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
+                    {% if row.difference >= 0 %}+{% endif %}{{ row.difference|floatformat:"2g" }}
+                    <span class="text-[10px] font-semibold text-slate-500 md:text-xs">so'm</span>
+                  </td>
                 </tr>
               {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div class="border-b border-slate-200 px-3 py-3 md:px-4 md:py-3.5">
+          <h2 class="m-0 text-[15px] font-medium md:text-base">
+            {% localize off %}{{ selected_year }}{% endlocalize %}, yil bo'yicha
+          </h2>
+          <p class="mt-1 text-xs text-slate-500 md:text-sm">Tanlangan yil bo'yicha umumiy summa va farq.</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[560px] border-collapse">
+            <thead>
+              <tr>
+                <th class="bg-slate-50 px-3 py-2 text-left text-xs font-bold text-slate-600 md:px-4 md:py-2.5 md:text-sm">Yil</th>
+                <th class="bg-slate-50 px-3 py-2 text-left text-xs font-bold text-slate-600 md:px-4 md:py-2.5 md:text-sm">Hisoblangan</th>
+                <th class="bg-slate-50 px-3 py-2 text-left text-xs font-bold text-slate-600 md:px-4 md:py-2.5 md:text-sm">To'langan</th>
+                <th class="bg-slate-50 px-3 py-2 text-left text-xs font-bold text-slate-600 md:px-4 md:py-2.5 md:text-sm">Farq</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="odd:bg-white even:bg-slate-50/30">
+                <td class="border-b border-slate-100 px-3 py-2 text-xs font-medium text-slate-700 last:border-b-0 md:px-4 md:py-2.5 md:text-sm">
+                  {% localize off %}{{ selected_year }}{% endlocalize %}
+                </td>
+                <td class="border-b border-slate-100 px-3 py-2 text-xs text-slate-700 last:border-b-0 md:px-4 md:py-2.5 md:text-sm">
+                  {{ year_total_earned|floatformat:"2g" }} <span class="text-[10px] font-semibold text-slate-500 md:text-xs">so'm</span>
+                </td>
+                <td class="border-b border-slate-100 px-3 py-2 text-xs text-slate-700 last:border-b-0 md:px-4 md:py-2.5 md:text-sm">
+                  {{ year_total_paid|floatformat:"2g" }} <span class="text-[10px] font-semibold text-slate-500 md:text-xs">so'm</span>
+                </td>
+                <td class="border-b border-slate-100 px-3 py-2 text-xs last:border-b-0 md:px-4 md:py-2.5 md:text-sm {% if year_difference >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
+                  {% if year_difference >= 0 %}+{% endif %}{{ year_difference|floatformat:"2g" }}
+                  <span class="text-[10px] font-semibold text-slate-500 md:text-xs">so'm</span>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
