@@ -96,25 +96,35 @@ class WorkerDashboardView(LoginRequiredMixin, View):
 				},
 			)
 
-		month_items = SalaryItem.objects.filter(
+		zero = Decimal("0.00")
+		year_items = SalaryItem.objects.filter(
 			employee=employee,
 			salary__date__year=selected_year,
-			salary__date__month=selected_month,
 		)
+		month_items = year_items.filter(salary__date__month=selected_month)
 		daily_totals = (
 			month_items.values("salary__date")
 			.annotate(
-				total_earned=Coalesce(Sum("earned_amount"), Decimal("0.00")),
-				total_paid=Coalesce(Sum("paid_amount"), Decimal("0.00")),
+				total_earned=Coalesce(Sum("earned_amount"), zero),
+				total_paid=Coalesce(Sum("paid_amount"), zero),
 			)
 			.order_by("salary__date")
 		)
 
-		zero = Decimal("0.00")
 		totals = month_items.aggregate(
 			total_earned=Coalesce(Sum("earned_amount"), zero),
 			total_paid=Coalesce(Sum("paid_amount"), zero),
 		)
+		monthly_totals = {
+			item["salary__date__month"]: {
+				"earned": item["total_earned"] or zero,
+				"paid": item["total_paid"] or zero,
+			}
+			for item in year_items.values("salary__date__month").annotate(
+				total_earned=Coalesce(Sum("earned_amount"), zero),
+				total_paid=Coalesce(Sum("paid_amount"), zero),
+			)
+		}
 		daily_rows = [
 			{
 				"date": item["salary__date"],
@@ -122,6 +132,16 @@ class WorkerDashboardView(LoginRequiredMixin, View):
 				"paid": item["total_paid"] or zero,
 			}
 			for item in daily_totals
+		]
+		monthly_rows = [
+			{
+				"month_number": month_number,
+				"month_name": month_name,
+				"earned": monthly_totals.get(month_number, {}).get("earned", zero),
+				"paid": monthly_totals.get(month_number, {}).get("paid", zero),
+				"is_selected_month": month_number == selected_month,
+			}
+			for month_number, month_name in months
 		]
 
 		context = {
@@ -131,6 +151,7 @@ class WorkerDashboardView(LoginRequiredMixin, View):
 			"total_paid": totals["total_paid"] or zero,
 			"balance": (employee.base_salary or zero) + (totals["total_earned"] or zero) - (totals["total_paid"] or zero),
 			"daily_rows": daily_rows,
+			"monthly_rows": monthly_rows,
 			"selected_year": selected_year,
 			"selected_month": selected_month,
 			"selected_month_name": month_names[selected_month - 1],
