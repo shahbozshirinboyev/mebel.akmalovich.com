@@ -81,9 +81,11 @@ class RecordAdmin(admin.ModelAdmin):
 class IncomeAdmin(ExportMixin, RecordAdmin):
     list_display = ("date", "income_amount", "payment_type", "description", "created_by", "created_at")
     fields = ("date", "income_amount", "payment_type", "description")
+    ordering = ("-date",)
 
 
 @admin.register(Expense)
 class ExpenseAdmin(ExportMixin, RecordAdmin):
     list_display = ("date", "expense_amount", "payment_type", "description", "created_by", "created_at")
     fields = ("date", "expense_amount", "payment_type", "description")
+    ordering = ("-date",)

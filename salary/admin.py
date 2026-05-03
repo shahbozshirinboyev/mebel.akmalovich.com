@@ -116,6 +116,7 @@ class SalaryMonthFilter(admin.SimpleListFilter):
 @admin.register(Employee)
 class EmployeeAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("full_name", "user", "phone_number", "position", "salary_type", "base_salary", "created_at")
+	ordering = ("-created_at",)
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
@@ -164,6 +165,7 @@ class EmployeeAdmin(ExportMixin, admin.ModelAdmin):
 class SalaryItemAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("salary", "employee", "earned_amount", "earned_note", "paid_amount", "paid_note", "created_at")
 	list_filter = (SalaryItemYearFilter, SalaryItemMonthFilter, "employee")
+	ordering = ("-created_at",)
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
@@ -179,6 +181,7 @@ class SalaryAdmin(ExportMixin, admin.ModelAdmin):
 	list_filter = (SalaryYearFilter, SalaryMonthFilter)
 	inlines = [SalaryItemInline]
 	exclude = ("created_by",)
+	ordering = ("-date",)
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},

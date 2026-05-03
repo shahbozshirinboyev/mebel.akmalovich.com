@@ -3,6 +3,7 @@ from django.db import models
 from django import forms
 from django.forms import TextInput, Textarea
 from django.db import models as dj_models
+from django.utils.formats import number_format
 from import_export.admin import ExportMixin
 from .models import Buyer, Product, Sale, SaleItem
 
@@ -147,6 +148,7 @@ class SaleAdmin(ExportMixin, admin.ModelAdmin):
       list_filter = (SaleYearFilter, SaleMonthFilter)
       search_fields = ()
       inlines = (SaleItemInline,)
+      ordering = ("-date",)
 
       formfield_overrides = {
 		dj_models.DecimalField: {'widget': DecimalTextInput(attrs={'class': 'thousand-sep'})},
@@ -195,8 +197,8 @@ class SaleAdmin(ExportMixin, admin.ModelAdmin):
           total = obj.sotuvlar.aggregate(
               sum=models.Sum( models.ExpressionWrapper( models.F("quantity") * models.F("price"), output_field=models.DecimalField() ) ) )["sum"]
           if total is None:
-              return "0.00"
-          return f"{total:.2f}"
+              return "0,00"
+          return number_format(total, decimal_pos=2, use_l10n=True)
 
       total_price.short_description = "Umumiy sotuv"
       exclude = ('created_by',)
@@ -228,10 +230,32 @@ class SaleItemAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("product", "quantity", "price", "total", "buyer", "payment_status", "buyers_paid", "order_status", "sale", "created_at" )
 	list_filter = (SaleItemYearFilter, SaleItemMonthFilter, "order_status", "payment_status")
 	# readonly_fields = ("total",)
+	ordering = ("-created_at",)
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': DecimalTextInput(attrs={'class': 'thousand-sep'})},
 	}
+
+	def formatted_price(self, obj):
+		if obj.price is None:
+			return "0,00"
+		return number_format(obj.price, decimal_pos=2, use_l10n=True)
+	formatted_price.short_description = "Narx"
+	formatted_price.admin_order_field = "price"
+
+	def formatted_total(self, obj):
+		if obj.total is None:
+			return "0,00"
+		return number_format(obj.total, decimal_pos=2, use_l10n=True)
+	formatted_total.short_description = "Jami"
+	formatted_total.admin_order_field = "total"
+
+	def formatted_buyers_paid(self, obj):
+		if obj.buyers_paid is None:
+			return "0,00"
+		return number_format(obj.buyers_paid, decimal_pos=2, use_l10n=True)
+	formatted_buyers_paid.short_description = "Xaridor to'lagan summa"
+	formatted_buyers_paid.admin_order_field = "buyers_paid"
 
 	def save_model(self, request, obj, form, change):
 		super().save_model(request, obj, form, change)
@@ -253,7 +277,7 @@ class SaleItemAdmin(ExportMixin, admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("product_name", "measurement_unit", "created_at")
-	# search_fields = ("product_name",)
+	ordering = ("-created_at",)
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': DecimalTextInput(attrs={'class': 'thousand-sep'})},
@@ -265,4 +289,4 @@ class ProductAdmin(ExportMixin, admin.ModelAdmin):
 @admin.register(Buyer)
 class BuyerAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("name", "sign", "phone_number", "created_at")
-	# search_fields = ("name", "phone_number", "sign")
+	ordering = ("-created_at",)

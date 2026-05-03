@@ -49,17 +49,18 @@ class OtherExpenseItemAdminForm(ExpenseItemAdminForm):
 @admin.register(FoodProducts)
 class FoodProductsAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('food_product_name', 'measurement_unit', 'created_at')
-    # search_fields = ('food_product_name',)
+    ordering = ('-created_at',)
 
 @admin.register(RawMaterials)
 class RawMaterialsAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('raw_material_name', 'measurement_unit', 'created_at')
-    # search_fields = ('raw_material_name',)
+    ordering = ('-created_at',)
 
 
 @admin.register(OtherExpenseTypes)
 class OtherExpenseTypesAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('expense_type_name', 'measurement_unit', 'created_at')
+    ordering = ('-created_at',)
 
 # ----------------------------------------------------------------------
 class FoodItemYearFilter(admin.SimpleListFilter):
@@ -162,6 +163,7 @@ class FoodItemAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("food_product", "quantity", "price", "total_item_price", "payment_status", "paid_amount", "expense", "created_at" )
 	list_filter = (FoodItemYearFilter, FoodItemMonthFilter, "payment_status")
 	readonly_fields = ("total_item_price",)
+	ordering = ("-created_at",)
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
@@ -183,6 +185,7 @@ class RawItemAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("raw_material", "quantity", "price", "total_item_price", "payment_status", "paid_amount", "expense", "created_at" )
 	list_filter = (RawItemYearFilter, RawItemMonthFilter, "payment_status")
 	readonly_fields = ("total_item_price",)
+	ordering = ("-created_at",)
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
@@ -205,6 +208,7 @@ class OtherExpenseItemAdmin(ExportMixin, admin.ModelAdmin):
 	list_display = ("expense_type", "quantity", "price", "total_item_price", "payment_status", "paid_amount", "expense", "created_at" )
 	list_filter = (FoodItemYearFilter, FoodItemMonthFilter, "payment_status")
 	readonly_fields = ("total_item_price",)
+	ordering = ("-created_at",)
 
 	formfield_overrides = {
 		dj_models.DecimalField: {'widget': TextInput(attrs={'class': 'thousand-sep'})},
@@ -331,6 +335,7 @@ class ExpensesAdmin(ExportMixin, admin.ModelAdmin):
     list_filter = (ExpensesYearFilter, ExpensesMonthFilter)
     # search_fields = ('description',)
     inlines = [FoodItemInline, RawItemInline, OtherExpenseItemInline]
+    ordering = ('-date',)
 
     # total_cost modelda editable=False bo'lgani uchun readonly_fields'ga qo'shish kerak
     readonly_fields = ('food_items_total', 'raw_items_total', 'other_items_total', 'total_cost')

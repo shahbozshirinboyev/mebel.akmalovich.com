@@ -211,6 +211,7 @@ class DailyFinanceReportAdmin(ExportMixin, admin.ModelAdmin):
     readonly_fields = list_display
     list_display_links = None
     actions = ("sync_selected_reports", "sync_all_reports")
+    ordering = ("-date",)
 
     def changelist_view(self, request, extra_context=None):
         DailyFinanceReport.sync_all()
